@@ -145,9 +145,10 @@ def hidemsg():
                     else:
                         print(colored("Wrong Input.Quitting...","red"))
                         os.system("exit")
-                except:
-                    print(colored("We have A Problem. Try Later...","red"))
-                    os.system("exit")
+                except Exception as e:
+                    print(e)
+                    #print(colored("We have A Problem. Try Later...","red"))
+                    #os.system("exit")
             elif confirm.lower() == "x":
                hidemsg()
         elif(img_ext == "png"):
