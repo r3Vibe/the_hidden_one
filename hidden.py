@@ -7,6 +7,7 @@ import time
 from stegano import lsbset
 from stegano.lsbset import generators
 from stegano import exifHeader
+import re
 
 #pass argument from command line and save it
 uinp = sys.argv[1:]
@@ -23,6 +24,14 @@ def check_args(uinp,theos):
     #if -i or --interactive is passed then interactive mode will run
     elif uinp[0] == "-i" or uinp[0] == "--interactive":
         banner(theos)
+    #hide message from console -hm message -p image path
+    elif uinp[0] == "-hm":
+        whole = " "
+        whole = whole.join(uinp)
+        whole_text =re.split('-hm | -p',whole)
+        message_tohide = whole_text[1]
+        image_path = whole_text[2]
+        hide_message_console(theos,message_tohide,image_path)
     #if wrong arguments are passed help menu will show
     else:
         print(colored("thi is a help menu","green"))
@@ -346,6 +355,111 @@ def hide_message(currentos):
                     os.system("exit")
             elif confirm.lower() == "x":
                hide_message(currentos)
+        #if image file is not supported
+        else:
+            print(colored("We Recommend using jpg,png Format Images","red"))
+            os.system("exit")
+       
+#function to hide message from console window
+def hide_message_console(currentos,msg,image):
+ #hide message for windows os
+    if currentos == "windows":
+        os.system("cls")
+        #get the image file name and extension
+        img = image.replace('"','')
+        img = img.strip()
+        img_name_arr = img.split("\\")
+        img_name = img_name_arr[len(img_name_arr)-1]
+        img_ext_arr = img_name.split(".")
+        img_ext = img_ext_arr[len(img_ext_arr)-1]
+        #method if image file is jpg or jpeg
+        if img_ext == "jpg" or img_ext == "jpeg":
+            print(colored("Message: "+msg,"green"))
+            print(colored("Image: "+img_name,"green"))
+            confirm = input(colored("Type Y to confirm X to retry -->> ","green"))
+            if(confirm.lower() == "y"):
+                #try to hide message to file
+                try:
+                    exifHeader.hide(img,"./hidden.jpg", msg)
+                    os.system("cls")
+                    print(colored("Message Hidden In Image","green"))
+                    os.system("exit")
+                except Exception as e:
+                    print(colored("We have A Problem. Try Later...","red"))
+                    os.system("exit")
+            elif confirm.lower() == "x":
+               os.system("cls")
+               os.system("exit")
+        #method if image file is png
+        elif img_ext == "png":
+            print(colored("Message: "+msg,"green"))
+            print(colored("Image: "+img_name,"green"))
+            confirm = input(colored("Type Y to confirm X to retry -->> ","green"))
+            if(confirm.lower() == "y"):
+                #try to hide msg to file
+                try:
+                    hide = lsbset.hide(img,msg,generators.eratosthenes())
+                    hide.save("./hidden.png")
+                    os.system("cls")
+                    print(colored("Message Hidden In Image","green"))
+                    os.system("exit")
+                except Exception as e:
+                    print(e)
+                    print(colored("We have A Problem. Try Later...","red"))
+                    os.system("exit")
+            elif confirm.lower() == "x":
+               os.system("cls")
+               os.system("exit")
+        #if image file is not supported
+        else:
+            print(colored("We Recommend using jpg,png Format Images","red"))
+            os.system("exit")
+    
+    elif currentos == "linux":
+        os.system("clear")
+        #get the image file name and extension
+        img = image.replace('"','')
+        img_name_arr = img.split("/")
+        img_name = img_name_arr[len(img_name_arr)-1]
+        img_ext_arr = img_name.split(".")
+        img_ext = img_ext_arr[len(img_ext_arr)-1]
+        #method if image file is jpg or jpeg
+        if img_ext == "jpg" or img_ext == "jpeg":
+            print(colored("Message: "+msg,"green"))
+            print(colored("Image: "+img_name,"green"))
+            confirm = input(colored("Type Y to confirm X to retry -->> ","green"))
+            if(confirm.lower() == "y"):
+                #try to hide message to file
+                try:
+                    exifHeader.hide(img,"./hidden.jpg", msg)
+                    os.system("clear")
+                    print(colored("Message Hidden In Image","green"))
+                    os.system("exit")
+                except Exception as e:
+                    print(colored("We have A Problem. Try Later...","red"))
+                    os.system("exit")
+            elif confirm.lower() == "x":
+               os.system("clear")
+               os.system("exit")
+        #method if image file is png
+        elif img_ext == "png":
+            print(colored("Message: "+msg,"green"))
+            print(colored("Image: "+img_name,"green"))
+            confirm = input(colored("Type Y to confirm X to retry -->> ","green"))
+            if(confirm.lower() == "y"):
+                #try to hide msg to file
+                try:
+                    hide = lsbset.hide(img,msg,generators.eratosthenes())
+                    hide.save("./hidden.png")
+                    os.system("clear")
+                    print(colored("Message Hidden In Image","green"))
+                    os.system("exit")
+                except Exception as e:
+                    print(colored("We have A Problem. Try Later...","red"))
+                    os.system("exit")
+            elif confirm.lower() == "x":
+               os.system("clear")
+               os.system("exit")
         #if image file is not supported
         else:
             print(colored("We Recommend using jpg,png Format Images","red"))

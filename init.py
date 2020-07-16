@@ -179,10 +179,6 @@ def hidemsg():
             os.system("exit")
             
 
-
-
-
-
 def revealmsg(os_name):
     if "windows" in os_name.lower():    
         os.system("cls")
