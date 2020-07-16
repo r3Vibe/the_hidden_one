@@ -12,7 +12,6 @@ import re
 #pass argument from command line and save it
 uinp = sys.argv[1:]
 
-
 #check for given arguments by user
 def check_args(uinp,theos):
     #if no arguments passed the help menu will show
@@ -24,6 +23,14 @@ def check_args(uinp,theos):
     #if -i or --interactive is passed then interactive mode will run
     elif uinp[0] == "-i" or uinp[0] == "--interactive":
         banner(theos)
+    #reveal message from console -rm image path
+    elif uinp[0] == "-rm":
+        whole = " "
+        whole = whole.join(uinp)
+        whole_text = re.split("-rm",whole)
+        image_path = whole_text[1]
+        image_path = image_path.strip()
+        reveal_message_console(theos,image_path)
     #hide message from console -hm message -p image path
     elif uinp[0] == "-hm":
         whole = " "
@@ -35,7 +42,6 @@ def check_args(uinp,theos):
     #if wrong arguments are passed help menu will show
     else:
         print(colored("thi is a help menu","green"))
-
 
 #check the user operating system
 def check_os():
@@ -54,8 +60,6 @@ def check_os():
     else:
         print("Only Linux And Windows Support")
         os.system("exit")
-  
-  
   
 #interactive banner for the script
 def banner(currentos):
@@ -142,7 +146,12 @@ def reveal_message(currentos):
             #try to reveal hidden message
             try:
                 message = exifHeader.reveal(location)
-                print(colored("Hidden Message Is: "+message.decode(),"green"))
+                message = message.decode()
+                save_msg = open("./Messages/"+img_ext_arr[0]+".txt","w")
+                save_msg.write(message)
+                save_msg.close()
+                print(colored("Hidden Message Is: "+message,"green"))
+                print(colored("Message saved in messages/"+img_ext_arr[0]+".txt file","green"))
                 todo = input(colored("Type E to exit Or M to Go to Main Menu -->> ","green"))
                 if todo.lower() == "e":
                     os.system("cls")
@@ -153,26 +162,32 @@ def reveal_message(currentos):
                     print(colored("Wrong Input.Quitting...","red"))
             #exit if error happnes
             except Exception as e:
-                print(colored("We have an error.Quitting...","red"))
-                os.system("cls")
-                os.system("exit")
+                print(e)
+                #print(colored("We have an error.Quitting...","red"))
+                #os.system("cls")
+                #os.system("exit")
         #reveal message from png files
         elif img_ext == "png":
             try:
                 message = lsbset.reveal(location, generators.eratosthenes())
+                save_msg = open("./Messages/hidden_message.txt","w")
+                save_msg.write(message)
+                save_msg.close()
                 print(colored("Hidden Message Is: "+message,"green"))
+                print(colored("Message saved in messages/"+img_ext_arr[0]+".txt file","green"))
                 todo = input(colored("Type E to exit Or M to Go to Main Menu -->> ","green"))
                 if todo.lower() == "e":
                     os.system("cls")
                     os.system("exit")
                 elif todo.lower() == "m":
-                    banner()
+                    banner(currentos)
                 else:
                     print(colored("Wrong Input.Quitting...","red"))
             except Exception as e:
-                print(colored("We have an error.Quitting...","red"))
-                os.system("cls")
-                os.system("exit")
+                print(e)
+                #print(colored("We have an error.Quitting...","red"))
+                #os.system("cls")
+                #os.system("exit")
                 
     elif currentos == "linux":
         os.system("clear")
@@ -188,13 +203,18 @@ def reveal_message(currentos):
         if img_ext == "jpg" or img_ext == "jpeg":
             try:
                 message = exifHeader.reveal(location)
-                print(colored("Hidden Message Is: "+message.decode(),"green"))
+                message = message.decode()
+                save_msg = open("./Messages/"+img_ext_arr[0]+".txt","w")
+                save_msg.write(message)
+                save_msg.close()
+                print(colored("Hidden Message Is: "+message,"green"))
+                print(colored("Message saved in messages/hidden_message.txt file","green"))
                 todo = input(colored("Type E to exit Or M to Go to Main Menu -->> ","green"))
                 if todo.lower() == "e":
                     os.system("clear")
                     os.system("exit")
                 elif todo.lower() == "m":
-                    banner()
+                    banner(currentos)
                 else:
                     print(colored("Wrong Input.Quitting...","red"))
             except Exception as e:
@@ -205,13 +225,18 @@ def reveal_message(currentos):
         elif img_ext == "png":
             try:
                 message = lsbset.reveal(location, generators.eratosthenes())
+                message = message.decode()
+                save_msg = open("./Messages/"+img_ext_arr[0]+".txt","w","utf-8")
+                save_msg.write(message)
+                save_msg.close()
                 print(colored("Hidden Message Is: "+message,"green"))
+                print(colored("Message saved in messages/hidden_message.txt file","green"))
                 todo = input(colored("Type E to exit Or M to Go to Main Menu -->> ","green"))
                 if todo.lower() == "e":
                     os.system("clear")
                     os.system("exit")
                 elif todo.lower() == "m":
-                    banner()
+                    banner(currentos)
                 else:
                     print(colored("Wrong Input.Quitting...","red"))
             except Exception as e:
@@ -244,9 +269,10 @@ def hide_message(currentos):
             if(confirm.lower() == "y"):
                 #try to hide message to file
                 try:
-                    exifHeader.hide(img,"./hidden.jpg", msg)
+                    exifHeader.hide(img,"./Images/"+img_ext_arr[0]+".jpg", msg)
                     os.system("cls")
                     print(colored("Message Hidden In Image","green"))
+                    print(colored("Image Available Under Images Folder","green"))
                     todo = input(colored("Type E(exit) M(main menu) -->> ","green"))
                     if todo.lower() == "e":
                         os.system("exit")
@@ -270,9 +296,10 @@ def hide_message(currentos):
                 #try to hide msg to file
                 try:
                     hide = lsbset.hide(img,msg,generators.eratosthenes())
-                    hide.save("./hidden.png")
+                    hide.save("./Images/"+img_ext_arr[0]+".png")
                     os.system("cls")
                     print(colored("Message Hidden In Image","green"))
+                    print(colored("Image Available Under Images Folder","green"))
                     todo = input(colored("Type E to exit M to go to main menu -->> ","green"))
                     if todo.lower() == "e":
                         os.system("exit")
@@ -313,9 +340,10 @@ def hide_message(currentos):
             if(confirm.lower() == "y"):
                 #try to hide message to file
                 try:
-                    exifHeader.hide(img,"./hidden.jpg", msg)
+                    exifHeader.hide(img,"./Images/"+img_ext_arr[0]+".jpg", msg)
                     os.system("clear")
                     print(colored("Message Hidden In Image","green"))
+                    print(colored("Image Available Under Images Folder","green"))
                     todo = input(colored("Type E(exit) M(main menu) -->> ","green"))
                     if todo.lower() == "e":
                         os.system("exit")
@@ -339,9 +367,10 @@ def hide_message(currentos):
                 #try to hide msg to file
                 try:
                     hide = lsbset.hide(img,msg,generators.eratosthenes())
-                    hide.save("./hidden.png")
+                    hide.save("./Images/"+img_ext_arr[0]+".png")
                     os.system("clear")
                     print(colored("Message Hidden In Image","green"))
+                    print(colored("Image Available Under Images Folder","green"))
                     todo = input(colored("Type E to exit M to go to main menu -->> ","green"))
                     if todo.lower() == "e":
                         os.system("exit")
@@ -380,9 +409,10 @@ def hide_message_console(currentos,msg,image):
             if(confirm.lower() == "y"):
                 #try to hide message to file
                 try:
-                    exifHeader.hide(img,"./hidden.jpg", msg)
+                    exifHeader.hide(img,"./Images/"+img_ext_arr[0]+".jpg", msg)
                     os.system("cls")
                     print(colored("Message Hidden In Image","green"))
+                    print(colored("Image Available Under Images Folder","green"))
                     os.system("exit")
                 except Exception as e:
                     print(colored("We have A Problem. Try Later...","red"))
@@ -399,9 +429,10 @@ def hide_message_console(currentos,msg,image):
                 #try to hide msg to file
                 try:
                     hide = lsbset.hide(img,msg,generators.eratosthenes())
-                    hide.save("./hidden.png")
+                    hide.save("./Images/"+img_ext_arr[0]+".png")
                     os.system("cls")
                     print(colored("Message Hidden In Image","green"))
+                    print(colored("Image Available Under Images Folder","green"))
                     os.system("exit")
                 except Exception as e:
                     print(e)
@@ -431,9 +462,10 @@ def hide_message_console(currentos,msg,image):
             if(confirm.lower() == "y"):
                 #try to hide message to file
                 try:
-                    exifHeader.hide(img,"./hidden.jpg", msg)
+                    exifHeader.hide(img,"./Images/"+img_ext_arr[0]+".jpg", msg)
                     os.system("clear")
                     print(colored("Message Hidden In Image","green"))
+                    print(colored("Image Available Under Images Folder","green"))
                     os.system("exit")
                 except Exception as e:
                     print(colored("We have A Problem. Try Later...","red"))
@@ -450,9 +482,10 @@ def hide_message_console(currentos,msg,image):
                 #try to hide msg to file
                 try:
                     hide = lsbset.hide(img,msg,generators.eratosthenes())
-                    hide.save("./hidden.png")
+                    hide.save("./Images/"+img_ext_arr[0]+".png")
                     os.system("clear")
                     print(colored("Message Hidden In Image","green"))
+                    print(colored("Image Available Under Images Folder","green"))
                     os.system("exit")
                 except Exception as e:
                     print(colored("We have A Problem. Try Later...","red"))
@@ -465,5 +498,113 @@ def hide_message_console(currentos,msg,image):
             print(colored("We Recommend using jpg,png Format Images","red"))
             os.system("exit")
        
+#function to reveal message from console window
+def reveal_message_console(currentos,path):
+    if currentos == "windows":    
+        os.system("cls")
+        location = path.replace('"','')
+        img_name_arr = location.split("\\")
+        img_name = img_name_arr[len(img_name_arr)-1]
+        img_ext_arr = img_name.split(".")
+        img_ext = img_ext_arr[len(img_ext_arr)-1]
+        #reveal message from jpg or jpeg file
+        if img_ext == "jpg" or img_ext == "jpeg":
+            #try to reveal hidden message
+            try:
+                message = exifHeader.reveal(location)
+                message = message.decode()
+                save_msg = open("./Messages/"+img_ext_arr[0]+".txt","w")
+                save_msg.write(message)
+                save_msg.close()
+                print(colored("Hidden Message Is: "+message,"green"))
+                print(colored("Message saved in messages/"+img_ext_arr[0]+".txt file","green"))
+                todo = input(colored("Type E to exit Or M to Go to Main Menu -->> ","green"))
+                if todo.lower() == "e":
+                    os.system("cls")
+                    os.system("exit")
+                elif todo.lower() == "m":
+                    banner(currentos)
+                else:
+                    print(colored("Wrong Input.Quitting...","red"))
+            #exit if error happnes
+            except Exception as e:
+                print(e)
+                #print(colored("We have an error.Quitting...","red"))
+                #os.system("cls")
+                #os.system("exit")
+        #reveal message from png files
+        elif img_ext == "png":
+            try:
+                message = lsbset.reveal(location, generators.eratosthenes())
+                save_msg = open("./Messages/"+img_ext_arr[0]+".txt","w")
+                save_msg.write(message)
+                save_msg.close()
+                print(colored("Hidden Message Is: "+message,"green"))
+                print(colored("Message saved in messages/"+img_ext_arr[0]+".txt file","green"))
+                todo = input(colored("Type E to exit Or M to Go to Main Menu -->> ","green"))
+                if todo.lower() == "e":
+                    os.system("cls")
+                    os.system("exit")
+                elif todo.lower() == "m":
+                    banner(currentos)
+                else:
+                    print(colored("Wrong Input.Quitting...","red"))
+            except Exception as e:
+                print(e)
+                #print(colored("We have an error.Quitting...","red"))
+                #os.system("cls")
+                #os.system("exit")
+                
+    elif currentos == "linux":
+        os.system("clear")
+        location = path.replace('"','')
+        img_name_arr = location.split("/")
+        img_name = img_name_arr[len(img_name_arr)-1]
+        img_ext_arr = img_name.split(".")
+        img_ext = img_ext_arr[len(img_ext_arr)-1]
+        #show if jpg image
+        if img_ext == "jpg" or img_ext == "jpeg":
+            try:
+                message = exifHeader.reveal(location)
+                message = message.decode()
+                save_msg = open("./Messages/"+img_ext_arr[0]+".txt","w")
+                save_msg.write(message)
+                save_msg.close()
+                print(colored("Hidden Message Is: "+message,"green"))
+                print(colored("Message saved in messages/"+img_ext_arr[0]+"e.txt file","green"))
+                todo = input(colored("Type E to exit Or M to Go to Main Menu -->> ","green"))
+                if todo.lower() == "e":
+                    os.system("clear")
+                    os.system("exit")
+                elif todo.lower() == "m":
+                    banner(currentos)
+                else:
+                    print(colored("Wrong Input.Quitting...","red"))
+            except Exception as e:
+                print(colored("We have an error.Quitting...","red"))
+                os.system("clear")
+                os.system("exit")
+        #show if png image 
+        elif img_ext == "png":
+            try:
+                message = lsbset.reveal(location, generators.eratosthenes())
+                message = message.decode()
+                save_msg = open("./Messages/"+img_ext_arr[0]+".txt","w","utf-8")
+                save_msg.write(message)
+                save_msg.close()
+                print(colored("Hidden Message Is: "+message,"green"))
+                print(colored("Message saved in messages/"+img_ext_arr[0]+".txt file","green"))
+                todo = input(colored("Type E to exit Or M to Go to Main Menu -->> ","green"))
+                if todo.lower() == "e":
+                    os.system("clear")
+                    os.system("exit")
+                elif todo.lower() == "m":
+                    banner(currentos)
+                else:
+                    print(colored("Wrong Input.Quitting...","red"))
+            except Exception as e:
+                print(colored("We have an error.Quitting...","red"))
+                os.system("clear")
+                os.system("exit")
 #call the function to start the script
 check_os()
