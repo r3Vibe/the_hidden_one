@@ -606,5 +606,6 @@ def reveal_message_console(currentos,path):
                 print(colored("We have an error.Quitting...","red"))
                 os.system("clear")
                 os.system("exit")
+
 #call the function to start the script
 check_os()
