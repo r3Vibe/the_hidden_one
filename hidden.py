@@ -663,7 +663,8 @@ def file_encrypt(currentos):
         file_location_arr = file.split("/")
         file_name_ext = file_location_arr[len(file_location_arr)-1]
         file_name_arr = file_name_ext.split(".")
-        file_name = file_name_arr[0]        
+        file_name = file_name_arr[0]
+        file_ext = file_name_arr[1]        
         #read file
         with open(file,'rb') as file2:
             file3 = file2.read()
@@ -678,7 +679,7 @@ def file_encrypt(currentos):
         encrypt_file = cipher.encrypt(file3)
         
         #save encrypted
-        with open("./Encrypted/"+file_name+"_encrypted","wb") as ef:
+        with open("./Encrypted/"+file_name+"."+file_ext+"_encrypted","wb") as ef:
             ef.write(encrypt_file)    
         
         print(colored("Encrypted File Can be found under Encrypted Folder","green"))
@@ -687,7 +688,7 @@ def file_encrypt(currentos):
         whreto = input(colored("Type E(exit) M(Main menu)","green"))
         if whreto.lower() == "e":
             os.system("exit")
-        elif whtrto.lower() == "m":
+        elif whreto.lower() == "m":
             banner(currentos)
         else:
             print(colored("Wrong Input...","red"))
@@ -708,7 +709,8 @@ def file_encrypt(currentos):
         file_location_arr = file.split("/")
         file_name_ext = file_location_arr[len(file_location_arr)-1]
         file_name_arr = file_name_ext.split(".")
-        file_name = file_name_arr[0]        
+        file_name = file_name_arr[0]     
+        file_ext = file_name_arr[1]   
         #read file
         with open(file,'rb') as file2:
             file3 = file2.read()
@@ -723,7 +725,7 @@ def file_encrypt(currentos):
         encrypt_file = cipher.encrypt(file3)
         
         #save encrypted
-        with open("./Encrypted/"+file_name+"_encrypted","wb") as ef:
+        with open("./Encrypted/"+file_name+"."+file_ext+"_encrypted","wb") as ef:
             ef.write(encrypt_file)    
         
         print(colored("Encrypted File Can be found under Encrypted Folder","green"))
@@ -732,7 +734,7 @@ def file_encrypt(currentos):
         whreto = input(colored("Type E(exit) M(Main menu)","green"))
         if whreto.lower() == "e":
             os.system("exit")
-        elif whtrto.lower() == "m":
+        elif whreto.lower() == "m":
             banner(currentos)
         else:
             print(colored("Wrong Input...","red"))
@@ -833,9 +835,186 @@ def gen_key(password):
 #show decryption menu
 def decrypt(currentos):
     if currentos == "windows":
+        os.system("cls")
+    elif currentos == "linux":
+        os.system("clear")
+    
+    print(colored("[1] File Decryption","green"))
+    print(colored("[2] Message Decryption","green"))
+    usr_choice = input(colored("Choose One -->> ","green"))
+    if usr_choice == "1":
+        file_decrypt(currentos)
+    elif usr_choice == "2":
+        message_decrypt(currentos)
+    else:
+        print(colored("Wrong Input...","red"))
+        os.system("exit")
+
+#file decryption
+def file_decrypt(currentos):
+    if currentos == "windows":
+        os.system("cls")
+        
+        #file location
+        file = input(colored("FIle Location -->> ","green"))
+        
+        #password to decrypt
+        passw = input(colored("Password -->> ","green"))
+        
+        #encode password
+        passw = passw.encode()
+        
+        #replace whiteplace
+        file = file.replace('"','')
+        file = file.strip()
+        
+        #get file name and extinsion
+        file_location_arr = file.split("/")
+        file_name_ext = file_location_arr[len(file_location_arr)-1]
+        file_name_arr = file_name_ext.split(".")
+        file_name = file_name_arr[0]     
+        file_ext = file_name_arr[1]
+        file_extinsion = file_ext.split("_")
+        extnsn = file_extinsion[0]
+        
+        #read file
+        with open(file,'rb') as file2:
+            file3 = file2.read()
+            
+        #get the key generated from password
+        key = gen_key(passw)
+        
+        #make cipher from key
+        cipher = Fernet(key)
+        
+        #encrypt file
+        decrypt_file = cipher.decrypt(file3)
+        
+        message = decrypt_file.decode()
+        
+        #save decrypted
+        with open("./Decrypted/"+file_name+"."+extnsn,"w") as ef:
+            ef.write(message)
+        
+        print(colored("Decrypted File Can be Found under Decrypted Folder "+file_name+"."+extnsn))
+        
+        #main menu or exit
+        whreto = input(colored("Type E(exit) M(Main menu)","green"))
+        if whreto.lower() == "e":
+            os.system("exit")
+        elif whreto.lower() == "m":
+            banner(currentos)
+        else:
+            print(colored("Wrong Input...","red"))
+            os.system("exit")   
+            
+    elif currentos == "linux":
+        os.system("clear")
+        
+        #file location
+        file = input(colored("FIle Location -->> ","green"))
+        
+        #password to decrypt
+        passw = input(colored("Password -->> ","green"))
+        
+        #encode password
+        passw = passw.encode()
+        
+        #replace whiteplace
+        file = file.replace('"','')
+        file = file.strip()
+        
+        #get file name and extinsion
+        file_location_arr = file.split("/")
+        file_name_ext = file_location_arr[len(file_location_arr)-1]
+        file_name_arr = file_name_ext.split(".")
+        file_name = file_name_arr[0]     
+        file_ext = file_name_arr[1]
+        file_extinsion = file_ext.split("_")
+        extnsn = file_extinsion[0]
+        
+        #read file
+        with open(file,'rb') as file2:
+            file3 = file2.read()
+            
+        #get the key generated from password
+        key = gen_key(passw)
+        
+        #make cipher from key
+        cipher = Fernet(key)
+        
+        #encrypt file
+        decrypt_file = cipher.decrypt(file3)
+        
+        message = decrypt_file.decode()
+        
+        #save decrypted
+        with open("./Decrypted/"+file_name+"."+extnsn,"w") as ef:
+            ef.write(message)
+
+        print(colored("Decrypted File Can be Found under Decrypted Folder "+file_name+"."+extnsn))
+        
+        #main menu or exit
+        whreto = input(colored("Type E(exit) M(Main menu)","green"))
+        if whreto.lower() == "e":
+            os.system("exit")
+        elif whreto.lower() == "m":
+            banner(currentos)
+        else:
+            print(colored("Wrong Input...","red"))
+            os.system("exit")
+            
+#message decryption
+def message_decrypt(currentos):
+    if currentos == "windows":
         pass
     elif currentos == "linux":
-        pass
+        os.system("clear")
+        
+        #file location
+        file = input(colored("File Location -->> ","green"))
+        
+        #password to decrypt
+        passw = input(colored("Password -->> ","green"))
+        
+        #encode password
+        passw = passw.encode()
+        
+        #replace whiteplace
+        file = file.replace('"','')
+        file = file.strip()
+        
+        #read file
+        with open(file,'rb') as file2:
+            file3 = file2.read()
+            
+        #get the key generated from password
+        key = gen_key(passw)
+        
+        #make cipher from key
+        cipher = Fernet(key)
+        
+        #encrypt file
+        decrypt_file = cipher.decrypt(file3)
+        
+        message = decrypt_file.decode()
+        
+        #save decrypted
+        with open("./Decrypted/message.txt","w") as ef:
+            ef.write(message)
+            
+        print(colored("Decrypted Message: "+message,"green"))
+        print(colored("Decrypted File Can be Found under Decrypted Folder message.txt","green"))
+        
+        #main menu or exit
+        whreto = input(colored("Type E(exit) M(Main menu)","green"))
+        if whreto.lower() == "e":
+            os.system("exit")
+        elif whreto.lower() == "m":
+            banner(currentos)
+        else:
+            print(colored("Wrong Input...","red"))
+            os.system("exit")
 
 #call the function to start the script
 check_os()
