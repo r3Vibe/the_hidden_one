@@ -8,6 +8,11 @@ from stegano import lsbset
 from stegano.lsbset import generators
 from stegano import exifHeader
 import re
+import base64
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.fernet import Fernet
 
 #pass argument from command line and save it
 uinp = sys.argv[1:]
@@ -81,10 +86,10 @@ def banner(currentos):
     print(colored("#                                                                            #","green"))
     print(colored("#             [1] Hide File                                                  #","green"))
     print(colored("#             [2] Hide Message                                               #","green"))
-    print(colored("#             [3] Encrypt Message                                            #","green"))
+    print(colored("#             [3] Encryption                                                 #","green"))
     print(colored("#             [4] Reveal File                                                #","green"))
     print(colored("#             [5] Reveal Message                                             #","green"))
-    print(colored("#             [6] Decrypt Message                                            #","green"))
+    print(colored("#             [6] Decryption                                                 #","green"))
     print(colored("#             [7] Encrypt And Hide                                           #","green"))
     print(colored("#             [8] Reveal And Decrypt                                         #","green"))
     print(colored("#             [9] Exit                                                       #","green"))
@@ -99,7 +104,7 @@ def banner(currentos):
         hide_message(currentos)
     #call function to encrypt message
     elif(user == "3"):
-        pass
+        encrypt(currentos)
     #call function to reveal hidden file
     elif(user == "4"):
         pass
@@ -450,6 +455,7 @@ def hide_message_console(currentos,msg,image):
         os.system("clear")
         #get the image file name and extension
         img = image.replace('"','')
+        img = img.strip()
         img_name_arr = img.split("/")
         img_name = img_name_arr[len(img_name_arr)-1]
         img_ext_arr = img_name.split(".")
@@ -468,8 +474,9 @@ def hide_message_console(currentos,msg,image):
                     print(colored("Image Available Under Images Folder","green"))
                     os.system("exit")
                 except Exception as e:
-                    print(colored("We have A Problem. Try Later...","red"))
-                    os.system("exit")
+                    print(e)
+                    #print(colored("We have A Problem. Try Later...","red"))
+                    #os.system("exit")
             elif confirm.lower() == "x":
                os.system("clear")
                os.system("exit")
@@ -571,7 +578,7 @@ def reveal_message_console(currentos,path):
                 save_msg.write(message)
                 save_msg.close()
                 print(colored("Hidden Message Is: "+message,"green"))
-                print(colored("Message saved in messages/"+img_ext_arr[0]+"e.txt file","green"))
+                print(colored("Message saved in messages/"+img_ext_arr[0]+".txt file","green"))
                 todo = input(colored("Type E to exit Or M to Go to Main Menu -->> ","green"))
                 if todo.lower() == "e":
                     os.system("clear")
@@ -606,6 +613,57 @@ def reveal_message_console(currentos,path):
                 print(colored("We have an error.Quitting...","red"))
                 os.system("clear")
                 os.system("exit")
+
+#shows encryption menu
+def encrypt(currentos):
+    if currentos == "windows":
+        os.system("cls")
+        print(colored("[1] File Encypt","green"))
+        print(colored("[2] Message Encypt","green"))
+        user_choice = input(colored("Choose One -->> ","green"))
+        if user_choice == "1":
+            file_encrypt(currentos)
+        elif user_choice == "2":
+            message_encrypt(currentos)    
+        else:
+            print(colored("Wrong Input.Try Again In 2s...","red"))
+            time.sleep(2)
+            os.system("cls")
+            encrypt(currentos)
+    elif currentos == "linux":
+        os.system("clear")
+        print(colored("[1] File Encypt","green"))
+        print(colored("[2] Message Encypt","green"))
+        user_choice = input(colored("Choose One -->> ","green"))
+        if user_choice == "1":
+            file_encrypt(currentos)
+        elif user_choice == "2":
+            message_encrypt(currentos)
+        else:
+            print(colored("Wrong Input.Try Again In 2s...","red"))
+            time.sleep(2)
+            os.system("clear")
+            encrypt(currentos)
+
+#encrypt any file
+def file_encrypt(currentos):
+    if currentos == "windows":
+        pass
+    elif currentos == "linux":
+        os.system("clear")
+        file = input(colored("File Location -->> ","green"))
+        passw = input(colored("Password -->> ","green"))
+        file = file.replace('"','')
+        file = file.strip()
+        gen_key(file,passw)
+ 
+#encrypt user message 
+def message_encrypt(currentos):
+    pass    
+
+#generates key for encryption with a password
+def gen_key(file,password):
+    pass    
 
 #call the function to start the script
 check_os()
