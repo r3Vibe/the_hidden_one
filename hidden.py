@@ -113,7 +113,7 @@ def banner(currentos):
         reveal_message(currentos)    
     #call a function to decrypt message
     elif(user == "6"):
-        pass                           
+        decrypt(currentos)                         
     #call a function to encrypt and hide message in image                    
     elif(user == "7"):
         pass
@@ -647,23 +647,195 @@ def encrypt(currentos):
 
 #encrypt any file
 def file_encrypt(currentos):
+    #code for windows
     if currentos == "windows":
-        pass
-    elif currentos == "linux":
-        os.system("clear")
+        os.system("cls")
+        #file to encrypt
         file = input(colored("File Location -->> ","green"))
+        #password for encryption
         passw = input(colored("Password -->> ","green"))
+        #encode password
+        passw = passw.encode()
+        #remove white space
         file = file.replace('"','')
         file = file.strip()
-        gen_key(file,passw)
+        #get file name
+        file_location_arr = file.split("/")
+        file_name_ext = file_location_arr[len(file_location_arr)-1]
+        file_name_arr = file_name_ext.split(".")
+        file_name = file_name_arr[0]        
+        #read file
+        with open(file,'rb') as file2:
+            file3 = file2.read()
+            
+        #get the key generated from password
+        key = gen_key(passw)
+        
+        #make cipher from key
+        cipher = Fernet(key)
+        
+        #encrypt file
+        encrypt_file = cipher.encrypt(file3)
+        
+        #save encrypted
+        with open("./Encrypted/"+file_name+"_encrypted","wb") as ef:
+            ef.write(encrypt_file)    
+        
+        print(colored("Encrypted File Can be found under Encrypted Folder","green"))
+        
+        #main menu or exit
+        whreto = input(colored("Type E(exit) M(Main menu)","green"))
+        if whreto.lower() == "e":
+            os.system("exit")
+        elif whtrto.lower() == "m":
+            banner(currentos)
+        else:
+            print(colored("Wrong Input...","red"))
+            os.system("exit")
+    #code for linux
+    elif currentos == "linux":
+        os.system("clear")
+        #file to encrypt
+        file = input(colored("File Location -->> ","green"))
+        #password for encryption
+        passw = input(colored("Password -->> ","green"))
+        #encode password
+        passw = passw.encode()
+        #remove white space
+        file = file.replace('"','')
+        file = file.strip()
+        #get file name
+        file_location_arr = file.split("/")
+        file_name_ext = file_location_arr[len(file_location_arr)-1]
+        file_name_arr = file_name_ext.split(".")
+        file_name = file_name_arr[0]        
+        #read file
+        with open(file,'rb') as file2:
+            file3 = file2.read()
+            
+        #get the key generated from password
+        key = gen_key(passw)
+        
+        #make cipher from key
+        cipher = Fernet(key)
+        
+        #encrypt file
+        encrypt_file = cipher.encrypt(file3)
+        
+        #save encrypted
+        with open("./Encrypted/"+file_name+"_encrypted","wb") as ef:
+            ef.write(encrypt_file)    
+        
+        print(colored("Encrypted File Can be found under Encrypted Folder","green"))
+        
+        #main menu or exit
+        whreto = input(colored("Type E(exit) M(Main menu)","green"))
+        if whreto.lower() == "e":
+            os.system("exit")
+        elif whtrto.lower() == "m":
+            banner(currentos)
+        else:
+            print(colored("Wrong Input...","red"))
+            os.system("exit")    
  
 #encrypt user message 
 def message_encrypt(currentos):
-    pass    
+    #code for windows
+    if currentos == "windows":
+        os.system("cls")
+        #file to encrypt
+        message = input(colored("Type Your Message -->> ","green"))
+        #password for encryption
+        passw = input(colored("Password -->> ","green"))
+        #encode password and message
+        passw = passw.encode()
+        message = message.encode() 
+            
+        #get the key generated from password
+        key = gen_key(passw)
+        
+        #make cipher from key
+        cipher = Fernet(key)
+        
+        #encrypt message
+        encrypt_message = cipher.encrypt(message)
+        
+        #save encrypted
+        with open("./Encrypted/encrypted_msg","wb") as ef:
+            ef.write(encrypt_message)    
+        
+        print(colored("Encrypted File Can be found under Encrypted Folder","green"))
+        
+        #main menu or exit
+        whreto = input(colored("Type E(exit) M(Main menu)","green"))
+        if whreto.lower() == "e":
+            os.system("exit")
+        elif whtrto.lower() == "m":
+            banner(currentos)
+        else:
+            print(colored("Wrong Input...","red"))
+            os.system("exit")
+    #code for linux
+    elif currentos == "linux":
+        os.system("clear")
+        #file to encrypt
+        message = input(colored("Type Your Message -->> ","green"))
+        #password for encryption
+        passw = input(colored("Password -->> ","green"))
+        #encode password and message
+        passw = passw.encode()
+        message = message.encode() 
+            
+        #get the key generated from password
+        key = gen_key(passw)
+        
+        #make cipher from key
+        cipher = Fernet(key)
+        
+        #encrypt message
+        encrypt_message = cipher.encrypt(message)
+        
+        #save encrypted
+        with open("./Encrypted/encrypted_msg","wb") as ef:
+            ef.write(encrypt_message)    
+        
+        print(colored("Encrypted File Can be found under Encrypted Folder","green"))
+        
+        #main menu or exit
+        whreto = input(colored("Type E(exit) M(Main menu)","green"))
+        if whreto.lower() == "e":
+            os.system("exit")
+        elif whtrto.lower() == "m":
+            banner(currentos)
+        else:
+            print(colored("Wrong Input...","red"))
+            os.system("exit")
+     
 
 #generates key for encryption with a password
-def gen_key(file,password):
-    pass    
+def gen_key(password):
+    #salt to make password strong
+    salt = b'\xf4\x0e\xfd^\xc3!\x1a\x1f\xf3\xb5\xd7!\xe42|q'
+
+    kdf = PBKDF2HMAC (
+        algorithm=hashes.SHA256,
+        length=32,
+        salt=salt,
+        iterations=100000,
+        backend=default_backend()
+    )
+
+    #key to encrypt
+    key = base64.urlsafe_b64encode(kdf.derive(password))
+
+    return key
+
+#show decryption menu
+def decrypt(currentos):
+    if currentos == "windows":
+        pass
+    elif currentos == "linux":
+        pass
 
 #call the function to start the script
 check_os()
