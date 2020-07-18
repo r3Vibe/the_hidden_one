@@ -98,7 +98,7 @@ def banner(currentos):
     user = input(colored("-->> ","green"))
     #call hide file function that hides a file in images
     if(user == "1"):
-        pass
+        hide_file(currentos)
     #call hide message function that will hide message in a image
     elif(user == "2"):
         hide_message(currentos)
@@ -107,7 +107,7 @@ def banner(currentos):
         encrypt(currentos)
     #call function to reveal hidden file
     elif(user == "4"):
-        pass
+        reveal_file(currentos)
     #call a function to reveal message
     elif(user == "5"):
         reveal_message(currentos)    
@@ -967,7 +967,52 @@ def file_decrypt(currentos):
 #message decryption
 def message_decrypt(currentos):
     if currentos == "windows":
-        pass
+        os.system("cls")
+        
+        #file location
+        file = input(colored("File Location -->> ","green"))
+        
+        #password to decrypt
+        passw = input(colored("Password -->> ","green"))
+        
+        #encode password
+        passw = passw.encode()
+        
+        #replace whiteplace
+        file = file.replace('"','')
+        file = file.strip()
+        
+        #read file
+        with open(file,'rb') as file2:
+            file3 = file2.read()
+            
+        #get the key generated from password
+        key = gen_key(passw)
+        
+        #make cipher from key
+        cipher = Fernet(key)
+        
+        #encrypt file
+        decrypt_file = cipher.decrypt(file3)
+        
+        message = decrypt_file.decode()
+        
+        #save decrypted
+        with open("./Decrypted/message.txt","w") as ef:
+            ef.write(message)
+            
+        print(colored("Decrypted Message: "+message,"green"))
+        print(colored("Decrypted File Can be Found under Decrypted Folder message.txt","green"))
+        
+        #main menu or exit
+        whreto = input(colored("Type E(exit) M(Main menu)","green"))
+        if whreto.lower() == "e":
+            os.system("exit")
+        elif whreto.lower() == "m":
+            banner(currentos)
+        else:
+            print(colored("Wrong Input...","red"))
+            os.system("exit")
     elif currentos == "linux":
         os.system("clear")
         
@@ -1014,6 +1059,212 @@ def message_decrypt(currentos):
             banner(currentos)
         else:
             print(colored("Wrong Input...","red"))
+            os.system("exit")
+
+#hide file in image
+def hide_file(currentos):
+    if currentos == "windows":
+        os.system("cls")
+        #get file to hide
+        file = input(colored("File Location -->> ","green"))
+        #remove " and whitespace
+        file = file.replace('"','')
+        file = file.strip()
+        #file extinsion
+        file_addr = file.split("\\")
+        file_name = file_addr[len(file_addr)-1]
+        file_ext = file_name.split(".")
+        ext = file_ext[len(file_ext)-1]
+        #get image t hide file
+        image = input(colored("Image To Hide File -->> ","green"))
+        #get the image file name and extension
+        img = image.replace('"','')
+        img = img.strip()
+        img_name_arr = img.split("/")
+        img_name = img_name_arr[len(img_name_arr)-1]
+        img_ext_arr = img_name.split(".")
+        img_ext = img_ext_arr[len(img_ext_arr)-1]
+        os.system("clear")
+        if img_ext == "jpg" or img_ext == "jpeg":
+            #try to hide message to file
+            try:
+                with open(file,'rb') as f:
+                    data = f.read()
+                data = data + file_name.encode()
+                exifHeader.hide(img,"./Images/"+img_ext_arr[0]+".jpg", data)
+            except Exception as e:
+                print(colored(e,"red"))
+            finally:
+                print(colored("Filed Hidden In the Image...","green"))
+                print(colored("File Is Under Images Folder "+img_ext_arr[0]+".jpg","yellow"))
+                goto = input(colored("Type E(exit) M(main menu)"))
+                if goto.lower() == "e":
+                    os.system("exit")
+                elif goto.lower() == "m":
+                    banner(currentos)
+                else:
+                    print(colored("Wrong Input...","red"))
+                    os.system("exit")
+
+        elif img_ext == "png":
+            try:
+                with open(file,'rb') as f:
+                    data = f.read()
+                data = data + file_name.encode()
+                hide = lsbset.hide(img,msg,generators.eratosthenes())
+                hide.save("./Images/"+img_ext_arr[0]+".png")
+            except Exception as e:
+                print(colored(e,"red"))
+            finally:
+                print(colored("File Hidden In the Image...","green"))
+                print(colored("File Is Under Images Folder "+img_ext_arr[0]+".jpg","yellow"))
+                goto = input(colored("Type E(exit) M(main menu)"))
+                if goto.lower() == "e":
+                    os.system("exit")
+                elif goto.lower() == "m":
+                    banner(currentos)
+                else:
+                    print(colored("Wrong Input...","red"))
+                    os.system("exit")
+        #if image file is not supported
+        else:
+            print(colored("We Recommend using jpg,png Format Images","red"))
+            os.system("exit")  
+            
+    elif currentos == "linux":
+        os.system("clear")
+        #get file to hide
+        file = input(colored("File Location -->> ","green"))
+        #remove " and whitespace
+        file = file.replace('"','')
+        file = file.strip()
+        #file extinsion
+        file_addr = file.split("/")
+        file_name = file_addr[len(file_addr)-1]
+        file_ext = file_name.split(".")
+        ext = file_ext[len(file_ext)-1]
+        #get image t hide file
+        image = input(colored("Image To Hide File -->> ","green"))
+        #get the image file name and extension
+        img = image.replace('"','')
+        img = img.strip()
+        img_name_arr = img.split("/")
+        img_name = img_name_arr[len(img_name_arr)-1]
+        img_ext_arr = img_name.split(".")
+        img_ext = img_ext_arr[len(img_ext_arr)-1]
+        os.system("clear")
+        if img_ext == "jpg" or img_ext == "jpeg":
+            #try to hide message to file
+            try:
+                with open(file,'rb') as f:
+                    data = f.read()
+                data = data + file_name.encode()
+                exifHeader.hide(img,"./Images/"+img_ext_arr[0]+".jpg", data)
+            except Exception as e:
+                print(colored(e,"red"))
+            finally:
+                print(colored("Filed Hidden In the Image...","green"))
+                print(colored("File Is Under Images Folder "+img_ext_arr[0]+".jpg","yellow"))
+                goto = input(colored("Type E(exit) M(main menu)"))
+                if goto.lower() == "e":
+                    os.system("exit")
+                elif goto.lower() == "m":
+                    banner(currentos)
+                else:
+                    print(colored("Wrong Input...","red"))
+                    os.system("exit")
+
+        elif img_ext == "png":
+            try:
+                with open(file,'rb') as f:
+                    data = f.read()
+                data = data + file_name.encode()
+                hide = lsbset.hide(img,msg,generators.eratosthenes())
+                hide.save("./Images/"+img_ext_arr[0]+".png")
+            except Exception as e:
+                print(colored(e,"red"))
+            finally:
+                print(colored("File Hidden In the Image...","green"))
+                print(colored("File Is Under Images Folder "+img_ext_arr[0]+".jpg","yellow"))
+                goto = input(colored("Type E(exit) M(main menu)"))
+                if goto.lower() == "e":
+                    os.system("exit")
+                elif goto.lower() == "m":
+                    banner(currentos)
+                else:
+                    print(colored("Wrong Input...","red"))
+                    os.system("exit")
+        #if image file is not supported
+        else:
+            print(colored("We Recommend using jpg,png Format Images","red"))
+            os.system("exit")  
+
+
+#reveal hidden file
+def reveal_file(currentos):
+    if currentos == "windows":
+        os.system("cls")
+        #get image with hidden file
+        img = input(colored("Image File Location -->> ","green"))
+        #whitespace
+        img = img.replace('"','')
+        img = img.strip()
+        #get message out
+        message = exifHeader.reveal(img)
+        message = message.decode()
+        #save in tmp file
+        with open("tmp",'w') as f:
+            f.write(message)
+        #get the file
+        with open("tmp","r") as r:
+            lines = r.read()
+            lines = lines.splitlines()
+            content = lines[:-1]
+            lines = lines[-1]
+            for x in content:
+                with open("./Messages/"+lines,'a') as f:
+                    f.write(x+"\n")
+        print(colored("File Unhidden...","green"))
+        print(colored("File Can Be Found Under Messages Folder "+lines,"green"))
+        goto = input(colored("Type E(exit) M(Main menu) -->> ","green"))
+        if goto.lower() == "e":
+            os.system("exit")
+        elif goto.lower() == "m":
+            banner(currentos)
+        else:
+            print(colored("Wrong Input","red"))
+            os.system("exit")  
+    elif currentos == "linux":
+        os.system("clear")
+        #get image with hidden file
+        img = input(colored("Image File Location -->> ","green"))
+        #whitespace
+        img = img.replace('"','')
+        img = img.strip()
+        #get message out
+        message = exifHeader.reveal(img)
+        message = message.decode()
+        #save in tmp file
+        with open("tmp",'w') as f:
+            f.write(message)
+        #get the file
+        with open("tmp","r") as r:
+            lines = r.read()
+            lines = lines.splitlines()
+            content = lines[:-1]
+            lines = lines[-1]
+            for x in content:
+                with open("./Messages/"+lines,'a') as f:
+                    f.write(x+"\n")
+        print(colored("File Unhidden...","green"))
+        print(colored("File Can Be Found Under Messages Folder "+lines,"green"))
+        goto = input(colored("Type E(exit) M(Main menu) -->> ","green"))
+        if goto.lower() == "e":
+            os.system("exit")
+        elif goto.lower() == "m":
+            banner(currentos)
+        else:
+            print(colored("Wrong Input","red"))
             os.system("exit")
 
 #call the function to start the script
