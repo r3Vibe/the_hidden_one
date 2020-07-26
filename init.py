@@ -33,16 +33,20 @@ def check_args(uinp):
     #find os
     myoss = platform.platform()
     myoss = myoss.lower()   
+    #open help menu if no arguments given
     if uinp == []:
         help_menu()
     #interactive menu
     elif uinp[0] == "-i" or uinp[0] == "--interactive":
         check_os("interactive")
+    #help menu
+    elif uinp[0] == "-h" or uinp[0] == "--help":
+        help_menu()
     #command line hide file
     elif uinp[0] == "-hf":
         whole = " "
         whole = whole.join(uinp)
-        whole_text =re.split('-hf | -p | -o',whole)
+        whole_text =re.split('-hf | -i | -o',whole)
         #file to hide
         try:
             file = whole_text[1]
@@ -77,7 +81,7 @@ def check_args(uinp):
     elif uinp[0] == "-ht":
         whole = " "
         whole = whole.join(uinp)
-        whole_text =re.split('-ht | -p | -o',whole)
+        whole_text =re.split('-ht | -i | -o',whole)
         #file to hide
         try:
             file = whole_text[1]
@@ -186,8 +190,40 @@ def check_args(uinp):
                 help_menu()
         except:
             help_menu()
-    #add file encryption
-
+    #command line text decrypt
+    elif uinp[0] == "-dt":
+        whole = " "
+        whole = whole.join(uinp)
+        whole_text =re.split('-dt | -p | -o',whole)
+        #file to hide
+        try:
+            file = whole_text[1]
+            file = file.replace('"','')
+            file = file.strip()
+            #image
+            try:
+                password = whole_text[2]
+                #get image extinsion
+                password = password.replace('"','')
+                password = password.strip()
+                #save name
+                try:
+                    saveas = whole_text[3]
+                    saveas = saveas.strip()
+                except Exception as e:
+                    saveas = "decrypt"
+                #call function based on os
+                if "windows" in myoss:
+                    pass
+                elif "linux" in myoss:
+                    terminal_decrypt_linux(file,password,saveas)
+            except:
+                help_menu()
+        except:
+            help_menu()
+    #command line file encrypt
+    
+    #commmand line file decrypt
 ####################################################################
 ############# Os Based Codes For Interactive Menu ################## 
 ####################################################################
@@ -986,12 +1022,15 @@ def text_decrypt_linux(mode):
     os.system("clear")
     text = input(colored("Enter File Location: ","green"))
     user_pass = input(colored("Passwword: ","green"))
+    name = input(colored("Enter File Name After Decryption: ","green"))
     os.system("clear")
     print(colored("Processiong....","green"))
     #encode both pass and text
     text = text.replace('"','')
     text = text.strip()
     user_pass = user_pass.encode()
+    name = name.replace('"','')
+    name  = name.strip()
     #get key
     key = gen_key(user_pass)
     #cipher generate
@@ -1003,36 +1042,61 @@ def text_decrypt_linux(mode):
         with open(text,"rb") as r:
             text = r.read()
         decrypted = cipher.decrypt(text)
-        with open("./Decrypted/text.txt","w") as f:
+        with open("./Decrypted/%s.txt"%name,"w") as f:
             f.write(decrypted.decode())
+            f.close()
     except Exception as e:
         print(colored(e,"red"))
         time.sleep(2)
         if mode == "i":
             text_decrypt_linux("i")
         elif mode == "c":
-            text_decrypt_linux("c")
+            os.system("exit")
     finally:
-        f.close()
-        if mode == 'i':
-            os.system("clear")
-            print(colored("Decryption Completed...","green"))
-            print(colored("Text: %s"%decrypted.decode(),"green"))
-            print(colored("Location: %s/Decrypted/text.txt"%dire,"green"))
-            print(colored("Press E(exit) Or M(Main Menu)","green"))
-            def go_to(key):
-                if key == keyboard.KeyCode(char='e'):
-                    return False
-                elif key == keyboard.KeyCode(char='m'):
-                    banner_linux(day,times)
-                    return False
-            with Listener(on_release=go_to) as l:
-                l.join()
-        elif mode == 'c':
-            os.system("clear")
-            print(colored("Decryption Completed...","green"))
-            print(colored("Text: %s"%decrypted.decode(),"green"))
-            print(colored("Location: %s/Decrypted/text.txt"%dire,"green"))
+        os.system("clear")
+        print(colored("Decryption Completed...","green"))
+        print(colored("Text: %s"%decrypted.decode(),"green"))
+        print(colored("Location: %s/Decrypted/%s.txt"%(dire,name),"green"))
+        print(colored("Press E(exit) Or M(Main Menu)","green"))
+        def go_to(key):
+            if key == keyboard.KeyCode(char='e'):
+                return False
+            elif key == keyboard.KeyCode(char='m'):
+                banner_linux(day,times)
+                return False
+        with Listener(on_release=go_to) as l:
+            l.join()
+
+#text decryption from terminal
+def terminal_decrypt_linux(file,password,fname):
+    os.system("clear")
+    print(colored("Processing....","green"))
+    #encode  password
+    user_pass = password.encode()
+    #get key
+    key = gen_key(user_pass)
+    #cipher generate
+    cipher = Fernet(key)
+    #get directory
+    dire = os.getcwd()
+    #encrypt
+    try:
+        with open(file,"rb") as r:
+            content = r.read()
+        decrypted = cipher.decrypt(content)
+        with open("./Decrypted/%s.txt"%fname,"w") as f:
+            f.write(decrypted.decode())
+            f.close()
+    except Exception as e:
+        print(colored(e,"red"))
+        os.system("exit")
+    finally:
+        os.system("clear")
+        print(colored("Decryption Completed...","green"))
+        print(colored("Text: %s"%decrypted.decode(),"green"))
+        print(colored("Location: %s/Decrypted/%s.txt"%(dire,fname),"green"))
+    
+
 ########## Decryption ##########
 
 #################################################
