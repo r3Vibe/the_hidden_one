@@ -11,7 +11,12 @@ from pynput.keyboard import Listener
 from pynput import keyboard
 import sys
 import re
-
+import base64
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.fernet import Fernet
+import pyAesCrypt
 
 #help menu
 def help_menu():
@@ -21,14 +26,15 @@ def help_menu():
 #pass argument from command line and save it
 uinp = sys.argv[1:]
 
-#check arguments
+####################################################################
+################# Check Arguments Given In Terminal ################
+####################################################################
 def check_args(uinp):
     #find os
     myoss = platform.platform()
-    myoss = myoss.lower()
-    
+    myoss = myoss.lower()   
     if uinp == []:
-        print("error")
+        help_menu()
     #interactive menu
     elif uinp[0] == "-i" or uinp[0] == "--interactive":
         check_os("interactive")
@@ -104,6 +110,29 @@ def check_args(uinp):
         except Exception as e:
             help_menu()
     #command line text reveal
+    elif uinp[0] == "-rt":
+        whole = " "
+        whole = whole.join(uinp)
+        whole_text =re.split('-rt',whole)
+        #file to hide
+        try:
+            image = whole_text[1]
+            #get image extinsion
+            img = image.replace('"','')
+            img = img.strip()
+            img_name_arr = img.split("/")
+            img_name = img_name_arr[len(img_name_arr)-1]
+            img_ext_arr = img_name.split(".")
+            ext = img_ext_arr[len(img_ext_arr)-1]
+            nm = img_ext_arr[len(img_ext_arr)-2]
+            #call function based on os
+            if "windows" in myoss:
+                pass
+            elif "linux" in myoss:
+                revealing_linux_text(img,ext,nm,'c')
+        except Exception as e:
+            help_menu()
+    #command line file reveal
     elif uinp[0] == "-rf":
         whole = " "
         whole = whole.join(uinp)
@@ -123,12 +152,45 @@ def check_args(uinp):
             if "windows" in myoss:
                 pass
             elif "linux" in myoss:
-                revealing_linux_text(img,ext,nm,'c')
+                revealing_linux_file(img,ext,'c')
         except Exception as e:
             help_menu()
-   
+    #command line text encrypt
+    elif uinp[0] == "-et":
+        whole = " "
+        whole = whole.join(uinp)
+        whole_text =re.split('-et | -p | -o',whole)
+        #file to hide
+        try:
+            text = whole_text[1]
+            text = text.replace('"','')
+            text = text.strip()
+            #image
+            try:
+                password = whole_text[2]
+                #get image extinsion
+                img = password.replace('"','')
+                img = img.strip()
+                #save name
+                try:
+                    saveas = whole_text[3]
+                    saveas = saveas.strip()
+                except Exception as e:
+                    saveas = "encrypt"
+                #call function based on os
+                if "windows" in myoss:
+                    pass
+                elif "linux" in myoss:
+                    terminal_encrypt_linux(text,password,saveas)
+            except:
+                help_menu()
+        except:
+            help_menu()
+    #add file encryption
 
-#check the current os 
+####################################################################
+############# Os Based Codes For Interactive Menu ################## 
+####################################################################
 def check_os(mode):
     global day
     global times
@@ -146,7 +208,9 @@ def check_os(mode):
             print(colored("You Are using %s Which Is Not Supported By The Script..."%myos,"red"))
             os.system("exit")
 
-#codes for windows
+####################################################################
+########################### codes for Windows ######################
+####################################################################
 def banner_win(day,times):
     os.system("cls")
     #ascii menu
@@ -174,12 +238,11 @@ def banner_win(day,times):
         print(colored("Wrong Input...","red"))
         banner_linux(day,times)
 
+#####################################################################
+############################# codes for linux #######################
+#####################################################################
 
-###########################################################################
-############################# codes for linux #############################
-###########################################################################
-
-#linux banner
+##################### Banner For Linux Os ####################
 def banner_linux(day,times):
     os.system("clear")
     #ascii menu
@@ -212,7 +275,7 @@ def banner_linux(day,times):
         time.sleep(1)
         banner_linux(day,times)
         
-#stagnography menu
+##################### stagnography menu ######################
 def stagno_linux():
     os.system("clear")
     print(colored("Stagnography","green"))
@@ -234,7 +297,6 @@ def stagno_linux():
         stagno_linux()
 
 ################# Hiding ################
-#code to hide 
 def hide_linux():
     os.system("clear")
     print(colored("Stagnography Hide","green"))
@@ -255,7 +317,7 @@ def hide_linux():
         time.sleep(1)
         hide_linux()
         
-#hide file in image get variables
+################# hide file in image get variables ##################
 def file_hide_linux():
     os.system("clear")
     print(colored("Stagnography File Hide","green"))
@@ -277,7 +339,7 @@ def file_hide_linux():
     name_to_save = input(colored("Enter Name For The Image After Process: ","green"))
     hiding_linux(the_file,the_img,ext,name_to_save,'i')
 
-#hide the file
+################# hide the file #####################################
 def hiding_linux(file,image,extension,saveas,type):
     os.system("clear")
     #file extinsion
@@ -298,7 +360,10 @@ def hiding_linux(file,image,extension,saveas,type):
         except Exception as e:
             print(colored(e,"red"))
             time.sleep(1)
-            file_hide_linux()
+            if type == "i":
+                file_hide_linux()
+            elif type == "c":
+                os.system("exit")
         finally:
             dire = os.getcwd()
             if type == 'i':
@@ -355,7 +420,7 @@ def hiding_linux(file,image,extension,saveas,type):
         time.sleep(1)
         file_hide_linux()
 
-#hide text in image get variables
+################# hide text in image get variables ##################
 def text_hide_linux():
     os.system("clear")
     print(colored("Stagnography Text Hide","green"))
@@ -387,7 +452,10 @@ def hiding_linux_text(file,image,extension,saveas,type):
         except Exception as e:
             print(colored(e,"red"))
             time.sleep(2)
-            text_hide_linux()
+            if type == "i":
+                text_hide_linux()
+            elif type == "c":
+                os.system("exit")
         finally:
             dire = os.getcwd()
             if type == 'i':
@@ -416,7 +484,10 @@ def hiding_linux_text(file,image,extension,saveas,type):
         except Exception as e:
             print(colored(e,"red"))
             time.sleep(1)
-            text_hide_linux()
+            if type  == "i":
+                text_hide_linux()
+            elif type == "c":
+                os.system("exit")
         finally:
             dire = os.getcwd()
             if type == 'i':
@@ -514,7 +585,10 @@ def revealing_linux_text(image,ext,name,mode):
         except Exception as e:
             print(colored(e,"red"))
             time.sleep(1)
-            text_reveal_linux()
+            if mode == "i":
+                text_reveal_linux()
+            elif mode == "c":
+                os.system("exit")
         finally:
             dire = os.getcwd()
             if mode == 'i':
@@ -546,7 +620,10 @@ def revealing_linux_text(image,ext,name,mode):
         except Exception as e:
             print(colored(e,"red"))
             time.sleep(1)
-            text_reveal_linux()
+            if mode == "i":
+                text_reveal_linux()
+            elif mode == "c":
+                os.system("exit")
         finally:
             dire = os.getcwd()
             if mode == 'i':
@@ -597,7 +674,10 @@ def revealing_linux_file(location,ext,mode):
         except Exception as e:
             print(colored(e,"red"))
             time.sleep(1)
-            file_reveal_linux()
+            if mode == "i":
+                file_reveal_linux()
+            elif mode == "c":
+                os.system("exit")
         finally:
             dire = os.getcwd()
             if mode == 'i':
@@ -613,10 +693,10 @@ def revealing_linux_file(location,ext,mode):
                         return False
                 with Listener(on_release=go_to) as l:
                     l.join()
-            elif type == 'c':
+            elif mode == 'c':
                 os.system("clear")
                 print(colored("Successfully Revealed File From Image","green"))
-                print(colored("Location: %s/%s"%(dire+"/Revealed",lines),"green"))
+                print(colored("Location: %s/Revealed/%s"%(dire,lines),"green"))
     #elif ext == "png":
     #    try:
     #        message = lsbset.reveal(location,generators.eratosthenes())
@@ -684,6 +764,8 @@ def crypto_linux():
         time.sleep(1)
         crypto_linux()
 
+########## Encryption ##########
+
 #code for encryption
 def encrypt_linux():
     os.system("clear")
@@ -695,15 +777,139 @@ def encrypt_linux():
     print(colored("[3] Back","green"))
     user = input(colored("-->> ","green"))
     if user == "1":
-        file_encrypt_linux()
+        file_encrypt_linux('i')
     elif user == "2":
-        text_encrypt_linux()
+        text_encrypt_linux('i')
     elif user == "3":
         crypto_linux()
     else:
         print(colored("Wrong Input...","red"))
         time.sleep(1)
         encrypt_linux()
+
+#file encrypt variables
+def file_encrypt_linux(mode):
+    os.system("clear")
+    #get file location
+    file = input(colored("Enter File Location: ","green"))
+    #remove " " from file
+    file = file.replace('"','')
+    file = file.strip()
+    #get file name
+    file_name_arr = file.split("/")
+    file_name = file_name_arr[len(file_name_arr)-1]
+    user_pass = input(colored("Passwword: ","green"))
+    #buffer size for encryption
+    bufferSize = 64 * 1024
+    dire = os.getcwd()
+    os.system("clear")
+    print(colored("Processiong....","green"))
+    try:
+        pyAesCrypt.encryptFile(file, "./Encrypted/%s.aes"%file_name, user_pass, bufferSize)
+    except Exception as e:
+        print(colored(e,"red"))
+        time.sleep(2)
+        if mode == "i":
+            file_encrypt_linux("i")
+        elif mode == "c":
+            file_encrypt_linux("c")
+    finally:
+        if mode == 'i':
+            os.system("clear")
+            print(colored("Encryption Completed...","green"))
+            print(colored("Location: %s/Encrypted/%s"%(dire,file_name+".aes"),"green"))
+            print(colored("Press E(exit) Or M(Main Menu)","green"))
+            def go_to(key):
+                if key == keyboard.KeyCode(char='e'):
+                    return False
+                elif key == keyboard.KeyCode(char='m'):
+                    banner_linux(day,times)
+                    return False
+            with Listener(on_release=go_to) as l:
+                l.join()
+        elif mode == 'c':
+            os.system("clear")
+            print(colored("Encryption Completed...","green"))
+            print(colored("Location: %s/Encrypted/%s"%(dire,file_name+".aes"),"green"))       
+
+#text encrypt variables
+def text_encrypt_linux(mode):
+    os.system("clear")
+    text = input(colored("Enter Text: ","green"))
+    user_pass = input(colored("Passwword: ","green"))
+    saveas = input(colored("Save As: ","green"))
+    os.system("clear")
+    print(colored("Processiong....","green"))
+    #encode both pass and text
+    user_pass = user_pass.encode()
+    text = text.encode()
+    #get key
+    key = gen_key(user_pass)
+    #cipher generate
+    cipher = Fernet(key)
+    #get directory
+    dire = os.getcwd()
+    #encrypt
+    try:
+        encrypted = cipher.encrypt(text)
+    except Exception as e:
+        print(colored(e,"red"))
+        time.sleep(2)
+        if mode == "i":
+            text_encrypt_linux("i")
+        elif mode == "c":
+            text_encrypt_linux("c")
+    finally:
+        with open("./Encrypted/%s"%saveas,'wb') as f:
+            f.write(encrypted)
+        f.close()
+        if mode == 'i':
+            os.system("clear")
+            print(colored("Encryption Completed...","green"))
+            print(colored("Location: %s/Encrypted/%s"%(dire,saveas),"green"))
+            print(colored("Press E(exit) Or M(Main Menu)","green"))
+            def go_to(key):
+                if key == keyboard.KeyCode(char='e'):
+                    return False
+                elif key == keyboard.KeyCode(char='m'):
+                    banner_linux(day,times)
+                    return False
+            with Listener(on_release=go_to) as l:
+                l.join()
+        elif mode == 'c':
+            os.system("clear")
+            print(colored("Encryption Completed...","green"))
+            print(colored("Location: %s/Encrypted/%s"%(dire,saveas),"green"))
+
+#encrypt from terminal
+def terminal_encrypt_linux(text,password,saveas):
+    print(colored("Processiong....","green"))
+    #encode both pass and text
+    user_pass = password.encode()
+    text = text.encode()
+    #get key
+    key = gen_key(user_pass)
+    #cipher generate
+    cipher = Fernet(key)
+    #get directory
+    dire = os.getcwd()
+    #encrypt
+    try:
+        encrypted = cipher.encrypt(text)
+    except Exception as e:
+        print(colored(e,"red"))
+        os.system("exit")
+    finally:
+        with open("./Encrypted/%s"%saveas,'wb') as f:
+            f.write(encrypted)
+        f.close()
+        os.system("clear")
+        print(colored("Encryption Completed...","green"))
+        print(colored("Location: %s/Encrypted/%s"%(dire,saveas),"green"))
+
+########## Encryption ##########
+
+########## Decryption ##########
 
 #code for decryption
 def decrypt_linux():
@@ -716,15 +922,138 @@ def decrypt_linux():
     print(colored("[3] Back","green"))
     user = input(colored("-->> ","green"))
     if user == "1":
-        file_decrypt_linux()
+        file_decrypt_linux("i")
     elif user == "2":
-        text_decrypt_linux()
+        text_decrypt_linux("i")
     elif user == "3":
         crypto_linux()
     else:
         print(colored("Wrong Input...","red"))
         time.sleep(1)
         decrypt_linux()
+
+#decrypt files
+def file_decrypt_linux(mode):
+    os.system("clear")
+    #get file location
+    file = input(colored("Enter File Location: ","green"))
+    #remove " " from file
+    file = file.replace('"','')
+    file = file.strip()
+    #get file name
+    file_name_arr = file.split("/")
+    file_name = file_name_arr[len(file_name_arr)-1]
+    file_name = file_name.split(".")
+    file_ext = file_name[1]
+    file_na = file_name[0]
+    file_name = file_na+"."+file_ext
+    user_pass = input(colored("Passwword: ","green"))
+    #buffer size for encryption
+    bufferSize = 64 * 1024
+    dire = os.getcwd()
+    os.system("clear")
+    print(colored("Processiong....","green"))
+    try:
+        pyAesCrypt.decryptFile(file, "./Decrypted/%s"%file_name, user_pass, bufferSize)
+    except Exception as e:
+        print(colored(e,"red"))
+        time.sleep(2)
+        if mode == "i":
+            file_decrypt_linux("i")
+        elif mode == "c":
+            file_decrypt_linux("c")
+    finally:
+        if mode == 'i':
+            os.system("clear")
+            print(colored("Decryption Completed...","green"))
+            print(colored("Location: %s/Decrypted/%s"%(dire,file_name),"green"))
+            print(colored("Press E(exit) Or M(Main Menu)","green"))
+            def go_to(key):
+                if key == keyboard.KeyCode(char='e'):
+                    return False
+                elif key == keyboard.KeyCode(char='m'):
+                    banner_linux(day,times)
+                    return False
+            with Listener(on_release=go_to) as l:
+                l.join()
+        elif mode == 'c':
+            os.system("clear")
+            print(colored("Decryption Completed...","green"))
+            print(colored("Location: %s/Decrypted/%s"%(dire,file_name),"green"))      
+
+#text decrypt text
+def text_decrypt_linux(mode):
+    os.system("clear")
+    text = input(colored("Enter File Location: ","green"))
+    user_pass = input(colored("Passwword: ","green"))
+    os.system("clear")
+    print(colored("Processiong....","green"))
+    #encode both pass and text
+    text = text.replace('"','')
+    text = text.strip()
+    user_pass = user_pass.encode()
+    #get key
+    key = gen_key(user_pass)
+    #cipher generate
+    cipher = Fernet(key)
+    #get directory
+    dire = os.getcwd()
+    #encrypt
+    try:
+        with open(text,"rb") as r:
+            text = r.read()
+        decrypted = cipher.decrypt(text)
+        with open("./Decrypted/text.txt","w") as f:
+            f.write(decrypted.decode())
+    except Exception as e:
+        print(colored(e,"red"))
+        time.sleep(2)
+        if mode == "i":
+            text_decrypt_linux("i")
+        elif mode == "c":
+            text_decrypt_linux("c")
+    finally:
+        f.close()
+        if mode == 'i':
+            os.system("clear")
+            print(colored("Decryption Completed...","green"))
+            print(colored("Text: %s"%decrypted.decode(),"green"))
+            print(colored("Location: %s/Decrypted/text.txt"%dire,"green"))
+            print(colored("Press E(exit) Or M(Main Menu)","green"))
+            def go_to(key):
+                if key == keyboard.KeyCode(char='e'):
+                    return False
+                elif key == keyboard.KeyCode(char='m'):
+                    banner_linux(day,times)
+                    return False
+            with Listener(on_release=go_to) as l:
+                l.join()
+        elif mode == 'c':
+            os.system("clear")
+            print(colored("Decryption Completed...","green"))
+            print(colored("Text: %s"%decrypted.decode(),"green"))
+            print(colored("Location: %s/Decrypted/text.txt"%dire,"green"))
+########## Decryption ##########
+
+#################################################
+########### Generate Key With Password ##########
+#################################################
+def gen_key(password):
+    #salt to make password strong
+    salt = b'\xf4\x0e\xfd^\xc3!\x1a\x1f\xf3\xb5\xd7!\xe42|q'
+
+    kdf = PBKDF2HMAC (
+        algorithm=hashes.SHA256,
+        length=32,
+        salt=salt,
+        iterations=100000,
+        backend=default_backend()
+    )
+
+    #key to encrypt
+    key = base64.urlsafe_b64encode(kdf.derive(password))
+
+    return key
 
 
 #call the function to determine os
