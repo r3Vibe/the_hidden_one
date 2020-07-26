@@ -20,8 +20,32 @@ import pyAesCrypt
 
 #help menu
 def help_menu():
-    print("help")
-
+    print(colored("The Hidden One Is A Script Based On Stegnography and Cryptography","green"))
+    print("                                                                         ")
+    print(colored("-h/--help: Help","green"))
+    print(colored("-i/--interactive: Interactive","green"))
+    print(colored("-hf: Hide File","green"))
+    print(colored("-ht: Hide Text","green"))
+    print(colored("-rt: Reveal Text","green"))
+    print(colored("-rf: Reveal File","green"))
+    print(colored("-et: Encrypt Text","green"))
+    print(colored("-dt: Decrypt Text_location","green"))
+    print(colored("-ef: Encrypt File","green"))
+    print(colored("-df: Decrypt File","green"))
+    print("                                                                         ")
+    print(colored("########## Help Menu ##########","green"))
+    print(colored("Type onehide -h or --help for help menu","green"))
+    print(colored("Type onehide -i or --interactive for interactive menu","green"))
+    print(colored("Type onehide -hf file_location -i image_location -o output_name to hide a file in image","green"))
+    print(colored("Type onehide -ht text_to_hide -i image_location -o output_name to hide a text in image","green"))
+    print(colored("Type onehide -rt file_location to reveal text from image","green"))
+    print(colored("Type onehide -rf file_location to reveal file from image","green"))
+    print(colored("Type onehide -et text_to_encrypt -p password -o output_name to encrypt any text","green"))
+    print(colored("Type onehide -dt encrypted_file_location -p password -o output_name to decrypt text from file","green"))
+    print(colored("Type onehide -ef file_location -p password -o output_name to encrypt file with aes","green"))
+    print(colored("Type onehide -df file_location -p password  to decrypt aes file","green"))
+    print(colored("########## End ##########","green"))
+    
 
 #pass argument from command line and save it
 uinp = sys.argv[1:]
@@ -222,8 +246,53 @@ def check_args(uinp):
         except:
             help_menu()
     #command line file encrypt
-    
+    elif uinp[0] == "-ef":
+        #buffer
+        bufferSize = 64 * 1024
+        #password
+        whole = " "
+        whole = whole.join(uinp)
+        whole_text =re.split('-ef | -p',whole)
+        #file to hide
+        try:
+            file = whole_text[1]
+            file = file.replace('"','')
+            file = file.strip()
+            try:
+                password = whole_text[2]
+                password = password.replace('"','')
+                password = password.strip()
+            except Exception as e:
+                help_menu()
+        except Exception as e:
+            help_menu()
+        finally:
+            terminal_encrypt_file(file,password,bufferSize) 
     #commmand line file decrypt
+    elif uinp[0] == "-df":
+        #buffer
+        bufferSize = 64 * 1024
+        #password
+        whole = " "
+        whole = whole.join(uinp)
+        whole_text =re.split('-df | -p',whole)
+        #file to hide
+        try:
+            file = whole_text[1]
+            file = file.replace('"','')
+            file = file.strip()
+            try:
+                password = whole_text[2]
+                password = password.replace('"','')
+                password = password.strip()
+            except Exception as e:
+                help_menu()
+        except Exception as e:
+            help_menu()
+        finally:
+            terminal_decrypt_file(file,password,bufferSize)   
+    else:
+        help_menu()
 ####################################################################
 ############# Os Based Codes For Interactive Menu ################## 
 ####################################################################
@@ -868,6 +937,26 @@ def file_encrypt_linux(mode):
             print(colored("Encryption Completed...","green"))
             print(colored("Location: %s/Encrypted/%s"%(dire,file_name+".aes"),"green"))       
 
+#encrypt file in terminal
+def terminal_encrypt_file(file,password,bufferSize) :
+    dire = os.getcwd()
+    os.system("clear")
+    files_name = file.split("/")
+    file_name = files_name[len(files_name)-1]
+    print(colored("Processiong....","green"))
+    try:
+        pyAesCrypt.encryptFile(file, "./Encrypted/%s.aes"%file_name, password, bufferSize)
+    except Exception as e:
+        print(colored(e,"red"))
+        time.sleep(2)
+        if mode == "i":
+            file_encrypt_linux("i")
+    finally:
+        os.system("clear")
+        print(colored("Encryption Completed...","green"))
+        print(colored("Location: %s/Encrypted/%s"%(dire,file_name+".aes"),"green"))       
+    
+
 #text encrypt variables
 def text_encrypt_linux(mode):
     os.system("clear")
@@ -902,6 +991,7 @@ def text_encrypt_linux(mode):
         if mode == 'i':
             os.system("clear")
             print(colored("Encryption Completed...","green"))
+            print(colored("Encrypted: %s"%encrypted,"green"))
             print(colored("Location: %s/Encrypted/%s"%(dire,saveas),"green"))
             print(colored("Press E(exit) Or M(Main Menu)","green"))
             def go_to(key):
@@ -915,6 +1005,7 @@ def text_encrypt_linux(mode):
         elif mode == 'c':
             os.system("clear")
             print(colored("Encryption Completed...","green"))
+            print(colored("Encrypted: %s"%encrypted,"green"))
             print(colored("Location: %s/Encrypted/%s"%(dire,saveas),"green"))
 
 #encrypt from terminal
@@ -941,6 +1032,7 @@ def terminal_encrypt_linux(text,password,saveas):
         f.close()
         os.system("clear")
         print(colored("Encryption Completed...","green"))
+        print(colored("Encrypted: %s"%encrypted,"green"))
         print(colored("Location: %s/Encrypted/%s"%(dire,saveas),"green"))
 
 ########## Encryption ##########
@@ -1095,8 +1187,36 @@ def terminal_decrypt_linux(file,password,fname):
         print(colored("Decryption Completed...","green"))
         print(colored("Text: %s"%decrypted.decode(),"green"))
         print(colored("Location: %s/Decrypted/%s.txt"%(dire,fname),"green"))
-    
 
+#file decrypt linux
+def terminal_decrypt_file(file,password,bufferSize):
+    #remove " " from file
+    file = file.replace('"','')
+    file = file.strip()
+    #get file name
+    file_name_arr = file.split("/")
+    file_name = file_name_arr[len(file_name_arr)-1]
+    file_name = file_name.split(".")
+    file_ext = file_name[1]
+    file_na = file_name[0]
+    file_name = file_na+"."+file_ext
+    #current directory
+    dire = os.getcwd()
+    os.system("clear")
+    print(colored("Processiong....","green"))
+    try:
+        pyAesCrypt.decryptFile(file, "./Decrypted/%s"%file_name, password, bufferSize)
+    except Exception as e:
+        print(colored(e,"red"))
+        time.sleep(2)
+        if mode == "i":
+            file_decrypt_linux("i")
+        elif mode == "c":
+            file_decrypt_linux("c")
+    finally:
+        os.system("clear")
+        print(colored("Decryption Completed...","green"))
+        print(colored("Location: %s/Decrypted/%s"%(dire,file_name),"green"))      
 ########## Decryption ##########
 
 #################################################
