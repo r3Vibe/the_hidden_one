@@ -148,14 +148,14 @@ def check_args(uinp):
             #get image extinsion
             img = image.replace('"','')
             img = img.strip()
-            img_name_arr = img.split("/")
+            img_name_arr = img.split("\\")
             img_name = img_name_arr[len(img_name_arr)-1]
             img_ext_arr = img_name.split(".")
             ext = img_ext_arr[len(img_ext_arr)-1]
             nm = img_ext_arr[len(img_ext_arr)-2]
             #call function based on os
             if "windows" in myoss:
-                pass
+                revealing_win_text(img,ext,nm,'c')
             elif "linux" in myoss:
                 revealing_linux_text(img,ext,nm,'c')
         except Exception as e:
@@ -171,14 +171,14 @@ def check_args(uinp):
             #get image extinsion
             img = image.replace('"','')
             img = img.strip()
-            img_name_arr = img.split("/")
+            img_name_arr = img.split("\\")
             img_name = img_name_arr[len(img_name_arr)-1]
             img_ext_arr = img_name.split(".")
             ext = img_ext_arr[len(img_ext_arr)-1]
             nm = img_ext_arr[len(img_ext_arr)-2]
             #call function based on os
             if "windows" in myoss:
-                pass
+                revealing_win_file(img,ext,'c')
             elif "linux" in myoss:
                 revealing_linux_file(img,ext,'c')
         except Exception as e:
@@ -207,7 +207,7 @@ def check_args(uinp):
                     saveas = "encrypt"
                 #call function based on os
                 if "windows" in myoss:
-                    pass
+                    cmd_encrypt_win(text,password,saveas)
                 elif "linux" in myoss:
                     terminal_encrypt_linux(text,password,saveas)
             except:
@@ -238,7 +238,7 @@ def check_args(uinp):
                     saveas = "decrypt"
                 #call function based on os
                 if "windows" in myoss:
-                    pass
+                    cmd_decrypt_win(file,password,saveas)
                 elif "linux" in myoss:
                     terminal_decrypt_linux(file,password,saveas)
             except:
@@ -267,7 +267,10 @@ def check_args(uinp):
         except Exception as e:
             help_menu()
         finally:
-            terminal_encrypt_file(file,password,bufferSize) 
+            if "windows" in myoss.lower():
+                cmd_encrypt_file(file,password,bufferSize)
+            elif "linux" in myoss.lower():
+                terminal_encrypt_file(file,password,bufferSize) 
     #commmand line file decrypt
     elif uinp[0] == "-df":
         #buffer
@@ -290,7 +293,11 @@ def check_args(uinp):
         except Exception as e:
             help_menu()
         finally:
-            terminal_decrypt_file(file,password,bufferSize)   
+            if "windows" in myoss:
+                cmd_decrypt_file(file,password,bufferSize)
+            elif "linux" in myoss:
+                terminal_decrypt_file(file,password,bufferSize)
+               
     else:
         help_menu()
 ####################################################################
@@ -334,14 +341,852 @@ def banner_win(day,times):
     print(colored("########################################################################","green"))
     user = input(colored("-->> ","green"))
     if user == "1":
-        stagno_linux()
+        stagno_win()
     elif user == "2":
-        crypto_linux()
+        crypto_win()
     elif user == "3":
         os.system("exit")
     else:
         print(colored("Wrong Input...","red"))
-        banner_linux(day,times)
+        banner_win(day,times)
+
+def stagno_win():
+    os.system("cls")
+    print(colored("Stagnography","green"))
+    print(colored("############","green"))
+    print(colored("What Would You Like To Do ?","green"))
+    print(colored("[1] Hide","green"))
+    print(colored("[2] Reveal","green"))
+    print(colored("[3] Back","green"))
+    user = input(colored("-->> ","green"))
+    if user == "1":
+        hide_win()
+    elif user == "2":
+        reveal_win()
+    elif user == "3":
+        banner_win(day,times)
+    else:
+        print(colored("Wrong Input...","red"))
+        time.sleep(1)
+        stagno_win()
+
+################# Hiding ################
+def hide_win():
+    os.system("cls")
+    print(colored("Stagnography Hide","green"))
+    print(colored("#################","green"))
+    print(colored("Choose One:","green"))
+    print(colored("[1] File","green"))
+    print(colored("[2] Text","green"))
+    print(colored("[3] Back","green"))
+    user = input(colored("-->> ","green"))
+    if user == "1":
+        file_hide_win()
+    elif user == "2":
+        text_hide_win()
+    elif user == "3":
+        stagno_win()
+    else:
+        print(colored("Wrong Input...","red"))
+        time.sleep(1)
+        hide_win()
+        
+################# hide file in image get variables ##################
+def file_hide_win():
+    os.system("cls")
+    print(colored("Stagnography File Hide","green"))
+    print(colored("######################","green"))
+    #get the file
+    the_file = input(colored("Location Of File To Hide: ","green"))
+    #filter everything
+    the_file = the_file.replace('"','')
+    the_file = the_file.strip()
+    #get the image
+    the_img = input(colored("Location Of Image: ","green"))
+    #filter image location
+    the_img = the_img.replace('"','')
+    the_img = the_img.strip()
+    #get image extension
+    img_ext = the_img.split(".")
+    ext = img_ext[len(img_ext)-1]
+    #save name
+    name_to_save = input(colored("Enter Name For The Image After Process: ","green"))
+    hiding_win(the_file,the_img,ext,name_to_save,'i')
+
+################# hide the file #####################################
+def hiding_win(file,image,extension,saveas,type):
+    os.system("cls")
+    #file extinsion
+    file_addr = file.split("/")
+    file_name = file_addr[len(file_addr)-1]
+    #file name
+    filename = file_name.encode()
+    #image name
+    save_name = saveas+"."+extension
+    print(colored("Processing...","green"))
+    time.sleep(1)
+    if extension == "jpg" or extension == "jpeg" or extension == "tiff":
+        try:
+            with open(file,"rb") as f:
+                data = f.read()
+            data = data + filename
+            exifHeader.hide(image,"./Hidden/%s"%save_name,data)
+        except Exception as e:
+            print(colored(e,"red"))
+            time.sleep(1)
+            if type == "i":
+                file_hide_win()
+            elif type == "c":
+                os.system("exit")
+        finally:
+            dire = os.getcwd()
+            if type == 'i':
+                os.system("cls")
+                print(colored("Successfully Hidden File In Image","green"))
+                print(colored("Location: %s/%s"%(dire+"/Hidden",save_name),"green"))
+                print(colored("Press E(exit) Or M(Main Menu)","green"))
+                def go_to(key):
+                    if key == keyboard.KeyCode(char='e'):
+                        return False
+                    elif key == keyboard.KeyCode(char='m'):
+                        banner_linux(day,times)
+                        return False
+                with Listener(on_release=go_to) as l:
+                    l.join()
+            elif type == 'c':
+                os.system("cls")
+                print(colored("Successfully Hidden File In Image","green"))
+                print(colored("Location: %s/%s"%(dire+"/Hidden",save_name),"green"))
+    
+    #problem with png need testing
+    #elif extension == "png":
+    #    try:
+    #        with open(file,"rb") as f:
+    #            data = f.read()
+    #        data = data + filename
+    #        hide = lsbset.hide(image,data,generators.eratosthenes())
+    #        hide.save("./Hidden/%s"%save_name)
+    #    except Exception as e:
+    #        print(colored(e,"red"))
+    #        time.sleep(1)
+    #        file_hide_linux()
+    #    finally:
+    #        dire = os.getcwd()
+    #        if type == 'i':
+    #            os.system("clear")
+    #            print(colored("Successfully Hidden File In Image","green"))
+    #            print(colored("Location: %s/%s"%(dire+"/Hidden",save_name),"green"))
+    #            print(colored("Press E(exit) Or M(Main Menu)","green"))
+    #            def go_to(key):
+    #                if key == keyboard.KeyCode(char='e'):
+    #                    return False
+    #                elif key == keyboard.KeyCode(char='m'):
+    #                    banner_linux(day,times)
+    #                    return False
+    #            with Listener(on_release=go_to) as l:
+    #                l.join()
+    #        elif type == 'c':
+    #            os.system("clear")
+    #            print(colored("Successfully Hidden File In Image","green"))
+    #            print(colored("Location: %s/%s"%(dire+"/Hidden",save_name),"green"))
+    else:
+        print(colored("%s Is Not Supported By This Script Try Other Image..."%extension,"red"))
+        time.sleep(1)
+        file_hide_linux()
+
+################# hide text in image get variables ##################
+def text_hide_win():
+    os.system("cls")
+    print(colored("Stagnography Text Hide","green"))
+    print(colored("######################","green"))
+    #get the file
+    the_text = input(colored("Enter Text: ","green"))
+    #get the image
+    the_img = input(colored("Location Of Image: ","green"))
+    #filter image location
+    the_img = the_img.replace('"','')
+    the_img = the_img.strip()
+    #get image extension
+    img_ext = the_img.split(".")
+    ext = img_ext[len(img_ext)-1]
+    #save name
+    name_to_save = input(colored("Enter Name For The Image After Process: ","green"))
+    hiding_win_text(the_text,the_img,ext,name_to_save,'i')
+    
+#hide the text
+def hiding_win_text(file,image,extension,saveas,type):
+    os.system("cls")
+    save_name = saveas+"."+extension
+    print(colored("Processing...","green"))
+    time.sleep(1)
+    if extension == "jpg" or extension == "jpeg" or extension == "tiff":
+        try:
+            data = file.encode()
+            exifHeader.hide(image,"./Hidden/%s"%save_name,data)
+        except Exception as e:
+            print(colored(e,"red"))
+            time.sleep(2)
+            if type == "i":
+                text_hide_win()
+            elif type == "c":
+                os.system("exit")
+        finally:
+            dire = os.getcwd()
+            if type == 'i':
+                os.system("cls")
+                print(colored("Successfully Hidden Text In Image","green"))
+                print(colored("Location: %s/%s"%(dire+"/Hidden",save_name),"green"))
+                print(colored("Press E(exit) Or M(Main Menu)","green"))
+                def go_to(key):
+                    if key == keyboard.KeyCode(char='e'):
+                        return False
+                    elif key == keyboard.KeyCode(char='m'):
+                        banner_win(day,times)
+                        return False
+                with Listener(on_release=go_to) as l:
+                    l.join()
+            elif type == 'c':
+                os.system("clear")
+                print(colored("Successfully Hidden Text In Image","green"))
+                print(colored("Location: %s/%s"%(dire+"/Hidden",save_name),"green"))
+                
+    elif extension == "png":
+        try:
+            data = file
+            hide = lsbset.hide(image,data,generators.eratosthenes())
+            hide.save("./Hidden/%s"%save_name)
+        except Exception as e:
+            print(colored(e,"red"))
+            time.sleep(1)
+            if type  == "i":
+                text_hide_linux()
+            elif type == "c":
+                os.system("exit")
+        finally:
+            dire = os.getcwd()
+            if type == 'i':
+                os.system("cls")
+                print(colored("Successfully Hidden Text In Image","green"))
+                print(colored("Location: %s/%s"%(dire+"/Hidden",save_name),"green"))
+                print(colored("Press E(exit) Or M(Main Menu)","green"))
+                def go_to(key):
+                    if key == keyboard.KeyCode(char='e'):
+                        return False
+                    elif key == keyboard.KeyCode(char='m'):
+                        banner_linux(day,times)
+                        return False
+                with Listener(on_release=go_to) as l:
+                    l.join()
+            elif type == 'c':
+                os.system("clear")
+                print(colored("Successfully Hidden Text In Image","green"))
+                print(colored("Location: %s/%s"%(dire+"/Hidden",save_name),"green"))
+    else:
+        print(colored("%s Is Not Supported By This Script Try Other Image..."%extension,"red"))
+        time.sleep(2)
+        file_hide_linux()
+
+################# Hiding ################
+
+################# Reveal ################
+#code to reveal
+def reveal_win():
+    os.system("cls")
+    print(colored("Stagnography Reveal","green"))
+    print(colored("###################","green"))
+    print(colored("Choose One:","green"))
+    print(colored("[1] File","green"))
+    print(colored("[2] Text","green"))
+    print(colored("[3] Back","green"))
+    user = input(colored("-->> ","green"))
+    if user == "1":
+        file_reveal_win()
+    elif user == "2":
+        text_reveal_win()
+    elif user == "3":
+        stagno_win()
+    else:
+        print(colored("Wrong Input...","red"))
+        time.sleep(1)
+        reveal_win()
+
+#file reveal get variables
+def file_reveal_win():
+    os.system("cls")
+    print(colored("Stagnography File Reveal","green"))
+    print(colored("########################","green"))
+    #get the image
+    the_img = input(colored("Location Of Image: ","green"))
+    #filter image location
+    the_img = the_img.replace('"','')
+    the_img = the_img.strip()
+    #get image extension
+    img_ext = the_img.split(".")
+    ext = img_ext[len(img_ext)-1]
+    #call function
+    revealing_win_file(the_img,ext,'i')
+
+#text reveal get variables
+def text_reveal_win():
+    os.system("cls")
+    print(colored("Stagnography Text Reveal","green"))
+    print(colored("########################","green"))
+    #get the image
+    the_img = input(colored("Location Of Image: ","green"))
+    #filter image location
+    the_img = the_img.replace('"','')
+    the_img = the_img.strip()
+    #get image extension
+    img_ext = the_img.split("/")
+    img_nm = img_ext[len(img_ext)-1]
+    all_ext = img_nm.split(".")
+    ext = all_ext[len(all_ext)-1]
+    nm = all_ext[len(all_ext)-2]
+    #call function
+    revealing_win_text(the_img,ext,nm,'i')   
+
+#reveal text
+def revealing_win_text(image,ext,name,mode):
+    os.system("cls")
+    print(colored("Processing...","green"))
+    if ext == "jpg" or ext == "jpeg" or ext == "tiff":
+        try:
+            message = exifHeader.reveal(image)
+            message = message.decode()
+            #save in tmp file
+            with open("./Revealed/%s.txt"%name,'w') as f:
+                f.write(message)
+        except Exception as e:
+            print(colored(e,"red"))
+            time.sleep(1)
+            if mode == "i":
+                text_reveal_win()
+            elif mode == "c":
+                os.system("exit")
+        finally:
+            dire = os.getcwd()
+            if mode == 'i':
+                os.system("cls")
+                print(colored("Text has been revealed","green"))
+                print(colored("Text: %s"%message,"green"))
+                print(colored("Location: %s/Revealed/%s.txt"%(dire,name),"green"))
+                print(colored("Press E(exit) Or M(Main Menu)","green"))
+                def go_to(key):
+                    if key == keyboard.KeyCode(char='e'):
+                        return False
+                    elif key == keyboard.KeyCode(char='m'):
+                        banner_linux(day,times)
+                        return False
+                with Listener(on_release=go_to) as l:
+                    l.join()
+            elif mode == 'c':
+                os.system("cls")
+                print(colored("Successfully Revealed Text From Image","green"))
+                print(colored("Text: %s"%message,"green"))
+                print(colored("Location: %s/Revealed/%s.txt"%(dire,name),"green"))
+    elif ext == "png":
+        try:
+            message = lsbset.reveal(image,generators.eratosthenes())
+            #save in tmp file
+            with open("./Revealed/%s.txt"%name,'w') as f:
+                f.write(message)
+            f.close()
+            os.system("del tmp")
+        except Exception as e:
+            print(colored(e,"red"))
+            time.sleep(1)
+            if mode == "i":
+                text_reveal_win()
+            elif mode == "c":
+                os.system("exit")
+        finally:
+            dire = os.getcwd()
+            if mode == 'i':
+                os.system("cls")
+                print(colored("Text has been revealed","green"))
+                print(colored("Text: %s"%message,"green"))
+                print(colored("Location: %s/Revealed/%s.txt"%(dire,name),"green"))
+                print(colored("Press E(exit) Or M(Main Menu)","green"))
+                def go_to(key):
+                    if key == keyboard.KeyCode(char='e'):
+                        return False
+                    elif key == keyboard.KeyCode(char='m'):
+                        banner_win(day,times)
+                        return False
+                with Listener(on_release=go_to) as l:
+                    l.join()
+            elif mode == 'c':
+                os.system("cls")
+                print(colored("Successfully Revealed Text From Image","green"))
+                print(colored("Text: %s"%message,"green"))
+                print(colored("Location: %s/Revealed/%s.txt"%(dire,name),"green"))
+    else:
+        print(colored("%s Is Not Supported By This Script Try Other Image..."%ext,"red"))
+        time.sleep(1)
+        text_reveal_win()  
+
+#reveal file code
+def revealing_win_file(location,ext,mode):
+    os.system("cls")
+    print(colored("Processing...","green"))
+    if ext == "jpg" or ext == "jpeg" or ext == "tiff":
+        try:
+            message = exifHeader.reveal(location)
+            message = message.decode()
+            #save in tmp file
+            with open("tmp",'w') as f:
+                f.write(message)
+            #get the file
+            with open("tmp","r") as r:
+                lines = r.read()
+                lines = lines.splitlines()
+                content = lines[:-1]
+                lines = lines[-1]
+                for x in content:
+                    with open("./Revealed/%s"%lines,'a') as f:
+                        f.write("%s\n"%x)
+                f.close()
+            os.system("rm tmp")
+        except Exception as e:
+            print(colored(e,"red"))
+            time.sleep(1)
+            if mode == "i":
+                file_reveal_win()
+            elif mode == "c":
+                os.system("exit")
+        finally:
+            dire = os.getcwd()
+            if mode == 'i':
+                os.system("cls")
+                print(colored("File has been revealed","green"))
+                print(colored("Location: %s/Revealed/%s"%(dire,lines),"green"))
+                print(colored("Press E(exit) Or M(Main Menu)","green"))
+                def go_to(key):
+                    if key == keyboard.KeyCode(char='e'):
+                        return False
+                    elif key == keyboard.KeyCode(char='m'):
+                        banner_win(day,times)
+                        return False
+                with Listener(on_release=go_to) as l:
+                    l.join()
+            elif mode == 'c':
+                os.system("cls")
+                print(colored("Successfully Revealed File From Image","green"))
+                print(colored("Location: %s/Revealed/%s"%(dire,lines),"green"))
+    #elif ext == "png":
+    #    try:
+    #        message = lsbset.reveal(location,generators.eratosthenes())
+    #        #save in tmp file
+    #        with open("tmp",'w') as f:
+    #            f.write(message)
+    #        #get the file
+    #        with open("tmp","r") as r:
+    #            lines = r.read()
+    #            lines = lines.splitlines()
+    #            content = lines[:-1]
+    #            lines = lines[-1]
+    #            #for x in content:
+    #            #    with open("./Revealed/%s"%lines,'a') as f:
+    #            #        f.write(x+"\n")
+    #            #f.close()
+    #        os.system("rm tmp")
+    #    except Exception as e:
+    #        print(colored(e,"red"))
+    #        time.sleep(1)
+    #        file_reveal_linux()
+    #    finally:
+    #        dire = os.getcwd()
+    #        if mode == 'i':
+    #            os.system("clear")
+    #            print(colored("File has been revealed","green"))
+    #            print(colored("Location: %s/Revealed/%s"%(dire,lines),"green"))
+    #            print(colored("Press E(exit) Or M(Main Menu)","green"))
+    #            def go_to(key):
+    #                if key == keyboard.KeyCode(char='e'):
+    #                    return False
+    #                elif key == keyboard.KeyCode(char='m'):
+    #                    banner_linux(day,times)
+    #                    return False
+    #            with Listener(on_release=go_to) as l:
+    #                l.join()
+    #        elif type == 'c':
+    #            os.system("clear")
+    #            print(colored("Successfully Revealed File From Image","green"))
+    #            print(colored("Location: %s/%s"%(dire+"/Revealed",lines),"green"))
+    else:
+        print(colored("%s Is Not Supported By This Script Try Other Image..."%ext,"red"))
+        time.sleep(1)
+        file_reveal_linux()
+        
+################# Reveal ################
+#cryptography menu
+def crypto_win():
+    os.system("cls")
+    print(colored("Cryptography","green"))
+    print(colored("############","green"))
+    print(colored("What Would You Like To Do ?","green"))
+    print(colored("[1] Encrypt","green"))
+    print(colored("[2] Decrypt","green"))
+    print(colored("[3] Back","green"))
+    user = input(colored("-->> ","green"))
+    if user == "1":
+        encrypt_win()
+    elif user == "2":
+        decrypt_win()
+    elif user == "3":
+        banner_win(day,times)
+    else:
+        print(colored("Wrong Input...","red"))
+        time.sleep(1)
+        crypto_win()
+
+########## Encryption ##########
+#code for encryption
+def encrypt_win():
+    os.system("cls")
+    print(colored("Cryptography Encryption","green"))
+    print(colored("#######################","green"))
+    print(colored("Choose One:","green"))
+    print(colored("[1] File","green"))
+    print(colored("[2] Text","green"))
+    print(colored("[3] Back","green"))
+    user = input(colored("-->> ","green"))
+    if user == "1":
+        file_encrypt_win('i')
+    elif user == "2":
+        text_encrypt_win('i')
+    elif user == "3":
+        crypto_win()
+    else:
+        print(colored("Wrong Input...","red"))
+        time.sleep(1)
+        encrypt_win()
+
+#file encrypt variables
+def file_encrypt_win(mode):
+    os.system("cls")
+    #get file location
+    file = input(colored("Enter File Location: ","green"))
+    #remove " " from file
+    file = file.replace('"','')
+    file = file.strip()
+    #get file name
+    file_name_arr = file.split("\\")
+    file_name = file_name_arr[len(file_name_arr)-1]
+    user_pass = input(colored("Passwword: ","green"))
+    #buffer size for encryption
+    bufferSize = 64 * 1024
+    dire = os.getcwd()
+    os.system("cls")
+    print(colored("Processiong....","green"))
+    try:
+        pyAesCrypt.encryptFile(file, "./Encrypted/%s.aes"%file_name, user_pass, bufferSize)
+    except Exception as e:
+        print(colored(e,"red"))
+        time.sleep(2)
+        if mode == "i":
+            file_encrypt_win("i")
+        elif mode == "c":
+            file_encrypt_win("c")
+    finally:
+        if mode == 'i':
+            os.system("cls")
+            print(colored("Encryption Completed...","green"))
+            print(colored("Location: %s/Encrypted/%s"%(dire,file_name+".aes"),"green"))
+            print(colored("Press E(exit) Or M(Main Menu)","green"))
+            def go_to(key):
+                if key == keyboard.KeyCode(char='e'):
+                    return False
+                elif key == keyboard.KeyCode(char='m'):
+                    banner_win(day,times)
+                    return False
+            with Listener(on_release=go_to) as l:
+                l.join()
+        elif mode == 'c':
+            os.system("cls")
+            print(colored("Encryption Completed...","green"))
+            print(colored("Location: %s/Encrypted/%s"%(dire,file_name+".aes"),"green"))       
+
+#encrypt file in terminal
+def cmd_encrypt_file(file,password,bufferSize) :
+    dire = os.getcwd()
+    os.system("cls")
+    files_name = file.split("\\")
+    file_name = files_name[len(files_name)-1]
+    print(colored("Processiong....","green"))
+    try:
+        pyAesCrypt.encryptFile(file, "./Encrypted/%s.aes"%file_name, password, bufferSize)
+    except Exception as e:
+        print(colored(e,"red"))
+        time.sleep(2)
+        if mode == "i":
+            file_encrypt_win("i")
+    finally:
+        os.system("cls")
+        print(colored("Encryption Completed...","green"))
+        print(colored("Location: %s/Encrypted/%s"%(dire,file_name+".aes"),"green"))       
+    
+#text encrypt variables
+def text_encrypt_win(mode):
+    os.system("cls")
+    text = input(colored("Enter Text: ","green"))
+    user_pass = input(colored("Passwword: ","green"))
+    saveas = input(colored("Save As: ","green"))
+    os.system("cls")
+    print(colored("Processiong....","green"))
+    #encode both pass and text
+    user_pass = user_pass.encode()
+    text = text.encode()
+    #get key
+    key = gen_key(user_pass)
+    #cipher generate
+    cipher = Fernet(key)
+    #get directory
+    dire = os.getcwd()
+    #encrypt
+    try:
+        encrypted = cipher.encrypt(text)
+    except Exception as e:
+        print(colored(e,"red"))
+        time.sleep(2)
+        if mode == "i":
+            text_encrypt_win("i")
+        elif mode == "c":
+            text_encrypt_win("c")
+    finally:
+        with open("./Encrypted/%s"%saveas,'wb') as f:
+            f.write(encrypted)
+        f.close()
+        if mode == 'i':
+            os.system("cls")
+            print(colored("Encryption Completed...","green"))
+            print(colored("Encrypted: %s"%encrypted,"green"))
+            print(colored("Location: %s/Encrypted/%s"%(dire,saveas),"green"))
+            print(colored("Press E(exit) Or M(Main Menu)","green"))
+            def go_to(key):
+                if key == keyboard.KeyCode(char='e'):
+                    return False
+                elif key == keyboard.KeyCode(char='m'):
+                    banner_win(day,times)
+                    return False
+            with Listener(on_release=go_to) as l:
+                l.join()
+        elif mode == 'c':
+            os.system("cls")
+            print(colored("Encryption Completed...","green"))
+            print(colored("Encrypted: %s"%encrypted,"green"))
+            print(colored("Location: %s/Encrypted/%s"%(dire,saveas),"green"))
+
+#encrypt from terminal
+def cmd_encrypt_win(text,password,saveas):
+    print(colored("Processiong....","green"))
+    #encode both pass and text
+    user_pass = password.encode()
+    text = text.encode()
+    #get key
+    key = gen_key(user_pass)
+    #cipher generate
+    cipher = Fernet(key)
+    #get directory
+    dire = os.getcwd()
+    #encrypt
+    try:
+        encrypted = cipher.encrypt(text)
+    except Exception as e:
+        print(colored(e,"red"))
+        os.system("exit")
+    finally:
+        with open("./Encrypted/%s"%saveas,'wb') as f:
+            f.write(encrypted)
+        f.close()
+        os.system("cls")
+        print(colored("Encryption Completed...","green"))
+        print(colored("Encrypted: %s"%encrypted,"green"))
+        print(colored("Location: %s/Encrypted/%s"%(dire,saveas),"green"))
+
+########## Encryption ##########
+
+########## Decryption ##########
+
+#code for decryption
+def decrypt_win():
+    os.system("cls")
+    print(colored("Cryptography Decryption","green"))
+    print(colored("#######################","green"))
+    print(colored("Choose One:","green"))
+    print(colored("[1] File","green"))
+    print(colored("[2] Text","green"))
+    print(colored("[3] Back","green"))
+    user = input(colored("-->> ","green"))
+    if user == "1":
+        file_decrypt_win("i")
+    elif user == "2":
+        text_decrypt_win("i")
+    elif user == "3":
+        crypto_win()
+    else:
+        print(colored("Wrong Input...","red"))
+        time.sleep(1)
+        decrypt_win()
+
+#decrypt files
+def file_decrypt_win(mode):
+    os.system("cls")
+    #get file location
+    file = input(colored("Enter File Location: ","green"))
+    #remove " " from file
+    file = file.replace('"','')
+    file = file.strip()
+    #get file name
+    file_name_arr = file.split("\\")
+    file_name = file_name_arr[len(file_name_arr)-1]
+    file_name = file_name.split(".")
+    file_ext = file_name[1]
+    file_na = file_name[0]
+    file_name = file_na+"."+file_ext
+    user_pass = input(colored("Passwword: ","green"))
+    #buffer size for encryption
+    bufferSize = 64 * 1024
+    dire = os.getcwd()
+    os.system("cls")
+    print(colored("Processiong....","green"))
+    try:
+        pyAesCrypt.decryptFile(file, "./Decrypted/%s"%file_name, user_pass, bufferSize)
+    except Exception as e:
+        print(colored(e,"red"))
+        time.sleep(2)
+        if mode == "i":
+            file_decrypt_win("i")
+        elif mode == "c":
+            file_decrypt_win("c")
+    finally:
+        if mode == 'i':
+            os.system("cls")
+            print(colored("Decryption Completed...","green"))
+            print(colored("Location: %s/Decrypted/%s"%(dire,file_name),"green"))
+            print(colored("Press E(exit) Or M(Main Menu)","green"))
+            def go_to(key):
+                if key == keyboard.KeyCode(char='e'):
+                    return False
+                elif key == keyboard.KeyCode(char='m'):
+                    banner_win(day,times)
+                    return False
+            with Listener(on_release=go_to) as l:
+                l.join()
+        elif mode == 'c':
+            os.system("cls")
+            print(colored("Decryption Completed...","green"))
+            print(colored("Location: %s/Decrypted/%s"%(dire,file_name),"green"))      
+
+#text decrypt text
+def text_decrypt_win(mode):
+    os.system("cls")
+    text = input(colored("Enter File Location: ","green"))
+    user_pass = input(colored("Passwword: ","green"))
+    name = input(colored("Enter File Name After Decryption: ","green"))
+    os.system("cls")
+    print(colored("Processiong....","green"))
+    #encode both pass and text
+    text = text.replace('"','')
+    text = text.strip()
+    user_pass = user_pass.encode()
+    name = name.replace('"','')
+    name  = name.strip()
+    #get key
+    key = gen_key(user_pass)
+    #cipher generate
+    cipher = Fernet(key)
+    #get directory
+    dire = os.getcwd()
+    #encrypt
+    try:
+        with open(text,"rb") as r:
+            text = r.read()
+        decrypted = cipher.decrypt(text)
+        with open("./Decrypted/%s.txt"%name,"w") as f:
+            f.write(decrypted.decode())
+            f.close()
+    except Exception as e:
+        print(colored(e,"red"))
+        time.sleep(2)
+        if mode == "i":
+            text_decrypt_wn("i")
+        elif mode == "c":
+            os.system("exit")
+    finally:
+        os.system("cls")
+        print(colored("Decryption Completed...","green"))
+        print(colored("Text: %s"%decrypted.decode(),"green"))
+        print(colored("Location: %s/Decrypted/%s.txt"%(dire,name),"green"))
+        print(colored("Press E(exit) Or M(Main Menu)","green"))
+        def go_to(key):
+            if key == keyboard.KeyCode(char='e'):
+                return False
+            elif key == keyboard.KeyCode(char='m'):
+                banner_win(day,times)
+                return False
+        with Listener(on_release=go_to) as l:
+            l.join()
+
+#text decryption from terminal
+def cmd_decrypt_win(file,password,fname):
+    os.system("cls")
+    print(colored("Processing....","green"))
+    #encode  password
+    user_pass = password.encode()
+    #get key
+    key = gen_key(user_pass)
+    #cipher generate
+    cipher = Fernet(key)
+    #get directory
+    dire = os.getcwd()
+    #encrypt
+    try:
+        with open(file,"rb") as r:
+            content = r.read()
+        decrypted = cipher.decrypt(content)
+        with open("./Decrypted/%s.txt"%fname,"w") as f:
+            f.write(decrypted.decode())
+            f.close()
+    except Exception as e:
+        print(colored(e,"red"))
+        os.system("exit")
+    finally:
+        os.system("cls")
+        print(colored("Decryption Completed...","green"))
+        print(colored("Text: %s"%decrypted.decode(),"green"))
+        print(colored("Location: %s/Decrypted/%s.txt"%(dire,fname),"green"))
+
+#file decrypt linux
+def cmd_decrypt_file(file,password,bufferSize):
+    #remove " " from file
+    file = file.replace('"','')
+    file = file.strip()
+    #get file name
+    file_name_arr = file.split("\\")
+    file_name = file_name_arr[len(file_name_arr)-1]
+    file_name = file_name.split(".")
+    file_ext = file_name[1]
+    file_na = file_name[0]
+    file_name = file_na+"."+file_ext
+    #current directory
+    dire = os.getcwd()
+    os.system("cls")
+    print(colored("Processiong....","green"))
+    try:
+        pyAesCrypt.decryptFile(file, "./Decrypted/%s"%file_name, password, bufferSize)
+    except Exception as e:
+        print(colored(e,"red"))
+        time.sleep(2)
+        if mode == "i":
+            file_decrypt_win("i")
+        elif mode == "c":
+            file_decrypt_win("c")
+    finally:
+        os.system("cls")
+        print(colored("Decryption Completed...","green"))
+        print(colored("Location: %s/Decrypted/%s"%(dire,file_name),"green"))      
+########## Decryption ##########
 
 #####################################################################
 ############################# codes for linux #######################
@@ -745,7 +1590,7 @@ def revealing_linux_text(image,ext,name,mode):
                         return False
                 with Listener(on_release=go_to) as l:
                     l.join()
-            elif type == 'c':
+            elif mode == 'c':
                 os.system("clear")
                 print(colored("Successfully Revealed Text From Image","green"))
                 print(colored("Location: %s/Revealed/%s.txt"%(dire,name),"green"))
