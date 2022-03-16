@@ -1,6 +1,7 @@
 #all imports
 import os
 import platform
+from unicodedata import name
 from termcolor import colored
 from datetime import date ,datetime
 import time
@@ -642,12 +643,13 @@ def text_reveal_win():
     all_ext = img_nm.split(".")
     ext = all_ext[len(all_ext)-1]
     nm = all_ext[len(all_ext)-2]
+    print(nm)
     #call function
     revealing_win_text(the_img,ext,nm,'i')   
 
 #reveal text
 def revealing_win_text(image,ext,name,mode):
-    os.system("cls")
+    #os.system("cls")
     print(colored("Processing...","green"))
     if ext == "jpg" or ext == "jpeg" or ext == "tiff":
         try:
@@ -673,7 +675,7 @@ def revealing_win_text(image,ext,name,mode):
                 print(colored("Press E(exit) Or M(Main Menu)","green"))
                 def go_to(key):
                     if key == keyboard.KeyCode(char='e'):
-                        return False
+                        os.system('exit')
                     elif key == keyboard.KeyCode(char='m'):
                         banner_linux(day,times)
                         return False
